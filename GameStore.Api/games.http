@@ -1,0 +1,30 @@
+GET http://localhost:5205/games
+
+###
+GET http://localhost:5205/games/4
+
+###
+POST http://localhost:5205/games
+Content-Type: application/json
+
+{
+    "id": 4,
+    "name": "Call of Duty",
+    "genreID": 2,
+    "price": 79.99,
+    "releaseDate": "2023-01-15"
+}
+
+###
+PUT http://localhost:5205/games/4
+Content-Type: application/json
+
+  {
+    "name": "Street Fighter V",
+    "genre": "Fighting",
+    "price": 19.99,
+    "releaseDate": "2005-03-26"
+  },
+
+### 
+DELETE http://localhost:5205/games/2
