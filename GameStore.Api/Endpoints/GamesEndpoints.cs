@@ -24,7 +24,7 @@ public static class GameEndpoints
         // =============================
         // GET /games
         // =============================
-        group.MapGet("/", async(GameStoreContext dbContext) => 
+        group.MapGet("/", async (GameStoreContext dbContext) =>
             await dbContext.Games
                 .Select(game => new GameSummaryDto(
                     game.Id,
@@ -57,7 +57,7 @@ public static class GameEndpoints
         // =============================
         // POST /games
         // =============================
-        group.MapPost("/",async (CreateGameDto newGame, GameStoreContext dbContext) =>
+        group.MapPost("/", async (CreateGameDto newGame, GameStoreContext dbContext) =>
         {
             if (string.IsNullOrEmpty(newGame.Name) || newGame.GenreId <= 0 || newGame.Price <= 0)
             {
@@ -87,23 +87,41 @@ public static class GameEndpoints
         // =============================
         // PUT/ games/1
         // =============================
-        group.MapPut("/{id}", async(int id, UpdateGameDto updateGame, GameStoreContext dbContext) =>
+        group.MapPut("/{id}", async (int id, UpdateGameDto updateGame, GameStoreContext dbContext) =>
         {
-            // var index = games.FindIndex(game => game.Id == id);
-            var existingGame = await dbContext.Games.FindAsync(id);
+            // // var index = games.FindIndex(game => game.Id == id);
+            // var existingGame = await dbContext.Games.FindAsync(id);
 
-            if (existingGame is null)
-            {
-                return Results.NotFound();
-            }
+            // if (existingGame is null)
+            // {
+            //     return Results.NotFound();
+            // }
 
-            existingGame.Name = updateGame.Name;
-            existingGame.GenreId = updateGame.GenreId;
-            existingGame.Price = updateGame.Price;
-            existingGame.ReleaseDate = updateGame.ReleaseDate;
+            // existingGame.Name = updateGame.Name;
+            // existingGame.GenreId = updateGame.GenreId;
+            // existingGame.Price = updateGame.Price;
+            // existingGame.ReleaseDate = updateGame.ReleaseDate;
 
-            await dbContext.SaveChangesAsync();
-            return Results.NoContent();
+            // await dbContext.SaveChangesAsync();
+            // return Results.NoContent();
+
+            var rowsAffected = await dbContext.Games.Where(game => game.Id == id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(game => game.Name, updateGame.Name)
+                    .SetProperty(game => game.GenreId, updateGame.GenreId)
+                    .SetProperty(game => game.Price, updateGame.Price)
+                    .SetProperty(game => game.ReleaseDate, updateGame.ReleaseDate));
+            if (rowsAffected == 0) return Results.NotFound();
+
+            var updatedGame = await dbContext.Games.FindAsync(id);
+
+            return Results.Ok(new GameDetailsDto(
+                updatedGame!.Id,
+                updatedGame.Name,
+                updatedGame.GenreId,
+                updatedGame.Price,
+                updatedGame.ReleaseDate
+            ));
         });
 
 
