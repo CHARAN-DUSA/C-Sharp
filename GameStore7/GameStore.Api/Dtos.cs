@@ -26,3 +26,11 @@ public record UpdateGameDto(
 DateTime ReleaseDate,
 [Url][StringLength(100)]string ImageUri
 );
+
+public record CreatedGameDto(
+    string Name,
+    string Genre,
+    decimal Price,
+    DateTime ReleaseDate,
+    string ImageUri
+);

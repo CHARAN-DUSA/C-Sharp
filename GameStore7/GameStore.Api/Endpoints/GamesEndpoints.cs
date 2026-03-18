@@ -52,7 +52,7 @@ public static class GamesEndpoints
         // =============================
         // Adds a new game to the repository
         // Returns 201 with location header pointing to GET /games/{id}
-        group.MapPost("/", (IGamesRepository repository, CreateGameDto gameDto) =>
+        group.MapPost("/", async (IGamesRepository repository, CreateGameDto gameDto) =>
         {
             Game game = new()
             {
@@ -63,13 +63,13 @@ public static class GamesEndpoints
                 ImageUri = gameDto.ImageUri
             };
 
-            game.Id = repository.CreateAsync(game).Id;
+            var createdGame = await repository.CreateAsync(game);
 
-            return Results.CreatedAtRoute(
-                GetGameEndpointName,
-                new { id = game.Id },
-                game);
-        });
+            return Results.Created(
+                $"/games/{createdGame.Id}",
+                createdGame.AsCreatedDto()
+            );
+        }).RequireAuthorization(); // Only authenticated users can create new games
 
 
 
@@ -91,7 +91,7 @@ public static class GamesEndpoints
 
             await repository.UpdateAsync(id, game);
             return Results.Ok(game);
-        });
+        }).RequireAuthorization();
 
 
 
@@ -107,7 +107,7 @@ public static class GamesEndpoints
 
             repository.DeleteAsync(id);
             return Results.Ok("Game deleted successfully.");
-        });
+        }).RequireAuthorization();
 
         // Returns group back to Program.cs for further chaining
         return group;

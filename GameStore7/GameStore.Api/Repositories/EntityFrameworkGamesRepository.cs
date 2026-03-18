@@ -26,6 +26,7 @@ public class EntityFrameworkGamesRepository : IGamesRepository
     {
         dbContext.Games.Add(newGame);
         await dbContext.SaveChangesAsync();
+        await dbContext.Entry(newGame).ReloadAsync();
         return newGame;
     }
 

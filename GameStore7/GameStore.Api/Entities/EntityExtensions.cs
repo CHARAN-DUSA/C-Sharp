@@ -15,4 +15,15 @@ public static class EntityExtensions  // All extension methods need to be static
             game.ImageUri
         );
     }
+    
+    public static CreatedGameDto AsCreatedDto(this Game game)
+    {
+        return new CreatedGameDto(
+            game.Name,
+            game.Genre,
+            game.Price,
+            game.ReleaseDate,
+            game.ImageUri
+        );
+    }
 }
