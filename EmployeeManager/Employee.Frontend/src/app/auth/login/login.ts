@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { EmployeeService } from '../../services/employee-service';
-
-import { ToastService }    from '../../services/toast.service';
-import { ToastComponent }  from '../../components/toast/toast.component';
-import { SessionService } from '../../services/session.service';
+import { EmployeeForm } from '../../hrAdmin/employee-form/employee-form';
+import { ToastService } from '../../shared/services/toast.service';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { ToastComponent } from '../../shared/components/toast/toast.component';
+import { SessionService } from '../../shared/services/session.service';
 
 @Component({
   selector: 'app-login',

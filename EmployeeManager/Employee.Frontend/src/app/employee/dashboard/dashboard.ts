@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { EmployeeService } from '../../services/employee-service';
-import { Master } from '../../services/master';
-import { AnnouncementModel, IEmployeeListModel } from '../../models/Employee.model';
+import { IEmployeeListModel, AnnouncementModel } from '../../shared/models/Employee.model';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { Master } from '../../shared/services/master';
 
 @Component({
   selector: 'app-dashboard',

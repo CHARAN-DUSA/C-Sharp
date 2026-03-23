@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EmployeeService } from '../../services/employee-service';
-import { SessionService }  from '../../services/session.service';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { SessionService } from '../../shared/services/session.service';
+
 
 @Component({
   selector: 'app-my-announcements',

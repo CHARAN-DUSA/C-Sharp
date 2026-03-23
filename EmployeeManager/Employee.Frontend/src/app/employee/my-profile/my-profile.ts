@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
-import { EmployeeModel } from '../../models/Employee.model';
-import { DesignationModel } from '../../models/Department.models';
-import { EmployeeService } from '../../services/employee-service';
-import { Master } from '../../services/master';
-import { SessionService } from '../../services/session.service';
-import { ToastService } from '../../services/toast.service';
+import { DesignationModel } from '../../shared/models/Department.models';
+import { EmployeeModel } from '../../shared/models/Employee.model';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { Master } from '../../shared/services/master';
+import { SessionService } from '../../shared/services/session.service';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-my-profile',

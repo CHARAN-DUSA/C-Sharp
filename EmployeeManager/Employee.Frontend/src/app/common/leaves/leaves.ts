@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EmployeeService } from '../../services/employee-service';
-import { SessionService }  from '../../services/session.service';
-import { ToastService }    from '../../services/toast.service';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { SessionService } from '../../shared/services/session.service';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-leaves',

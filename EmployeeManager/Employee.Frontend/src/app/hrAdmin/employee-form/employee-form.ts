@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { EmployeeModel } from '../../models/Employee.model';
-import { DesignationModel } from '../../models/Department.models';
-import { EmployeeService } from '../../services/employee-service';
-import { Master } from '../../services/master';
-import { ToastService } from '../../services/toast.service';
+import { DesignationModel } from '../../shared/models/Department.models';
+import { EmployeeModel } from '../../shared/models/Employee.model';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { Master } from '../../shared/services/master';
+import { ToastService } from '../../shared/services/toast.service';
+
 
 @Component({
   selector: 'app-employee-form',

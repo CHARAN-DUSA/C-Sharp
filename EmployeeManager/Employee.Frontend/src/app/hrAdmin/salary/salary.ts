@@ -1,9 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EmployeeService } from '../../services/employee-service';
-import { ToastService }    from '../../services/toast.service';
-import { SalaryModel, IEmployeeListModel } from '../../models/Employee.model';
+import { SalaryModel, IEmployeeListModel } from '../../shared/models/Employee.model';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { ToastService } from '../../shared/services/toast.service';
+
 
 @Component({
   selector: 'app-salary',

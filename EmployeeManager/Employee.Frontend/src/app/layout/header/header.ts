@@ -1,9 +1,10 @@
 import { NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { SessionService } from '../../services/session.service';
-import { ToastComponent } from '../../components/toast/toast.component';
-import { EmployeeModel } from '../../models/Employee.model';
+import { ToastComponent } from '../../shared/components/toast/toast.component';
+import { EmployeeModel } from '../../shared/models/Employee.model';
+import { SessionService } from '../../shared/services/session.service';
+
 
 @Component({
   selector: 'app-header',

@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Master } from '../../services/master';
-import { DesignationModel } from '../../models/Department.models';
 import { Observable } from 'rxjs';
+import { Master } from '../../shared/services/master';
+import { DesignationModel } from '../../shared/models/Department.models';
 
 @Component({
   selector: 'app-designation-reactive',

@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DepartmentModel } from '../../models/Department.models';
-import { FormsModule } from '@angular/forms';
-import { Master } from '../../services/master';
+
 import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DepartmentModel } from '../../shared/models/Department.models';
+import { Master } from '../../shared/services/master';
 
 @Component({
   selector: 'app-department',

@@ -1,9 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { IEmployeeListModel } from '../../models/Employee.model';
-import { EmployeeService } from '../../services/employee-service';
-import { ToastService } from '../../services/toast.service';
+import { IEmployeeListModel } from '../../shared/models/Employee.model';
+import { EmployeeService } from '../../shared/services/employee-service';
+import { ToastService } from '../../shared/services/toast.service';
+
 
 @Component({
   selector: 'app-employee-list',
