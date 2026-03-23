@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddCors(opt =>
 {
-    opt.AddPolicy("enableAll", policy =>
+    opt.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
     });
@@ -20,7 +20,7 @@ builder.Services.AddDbContext<EmployeeDbContext>(options =>
 
 var app = builder.Build();
 
-app.UseCors("enableAll");
+app.UseCors("AllowAll");
 //app.UseHttpsRedirection();
 
 
