@@ -6,16 +6,17 @@
 <img src="https://img.shields.io/badge/Docker-WSL2-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
 <img src="https://img.shields.io/badge/JWT-Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
 <img src="https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" />
+<img src="https://img.shields.io/badge/EF%20Core-9.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
 
 <br/><br/>
 
 # 🏢 Employee Management System
 
-### A production-ready full-stack web application for managing employees, departments, and designations — built with Angular 19 and .NET 9 Web API.
+### A production-ready full-stack web application for managing employees, salary, tasks, leaves, attendance, and announcements — built with Angular 19 and .NET 9 Web API.
 
 <br/>
 
-[📸 Screenshots](#-screenshots) · [✨ Features](#-features) · [🚀 Quick Start](#-quick-start) · [🏗️ Architecture](#️-architecture) · [🔐 Security](#-security) · [🗄️ Database](#️-database)
+[✨ Features](#-features) · [🚀 Quick Start](#-quick-start) · [🏗️ Architecture](#️-architecture) · [📄 Pages](#-pages-overview) · [🔐 Security](#-security) · [🗄️ Database](#️-database) · [🐛 Troubleshooting](#-troubleshooting)
 
 </div>
 
@@ -23,18 +24,22 @@
 
 ## 📌 About The Project
 
-**EmpAdmin** is a role-based employee management portal that allows HR staff to manage the full employee lifecycle — from onboarding to profile updates — while giving employees secure access to view and update their own profiles.
+**EmpAdmin** is a role-based employee management portal that handles the complete employee lifecycle — from onboarding and salary management to leave approvals, daily attendance tracking, task assignments, and company-wide announcements.
 
-Built as a learning project following **Julio Casal's .NET course**, this system demonstrates real-world patterns including:
+Built as a hands-on learning project following **Julio Casal's .NET course**, this system demonstrates real-world full-stack patterns:
 
 - ✅ Clean REST API with EF Core + SQL Server
 - ✅ Angular Signals for reactive state management
 - ✅ JWT authentication with HTTP interceptors
-- ✅ Role-based route guards
+- ✅ Role-based route guards (HR vs Employee)
 - ✅ sessionStorage for secure client-side sessions
 - ✅ Toast notifications replacing all `alert()` calls
 - ✅ Skeleton loading screens for better UX
 - ✅ Docker-based SQL Server on Windows (WSL2)
+- ✅ Check-in / Check-out attendance system
+- ✅ Printable salary slips
+- ✅ Leave approval workflow with rejection reasons
+- ✅ Task assignment with priority and overdue detection
 
 ---
 
@@ -42,37 +47,119 @@ Built as a learning project following **Julio Casal's .NET course**, this system
 
 ### 👥 Role-Based Access Control
 
-| Role | Access | Permissions |
-|------|--------|-------------|
-| **HR** | Dashboard, Employees, Departments, Designations | Full CRUD on all entities |
-| **Employee** | My Profile only | View & update own profile |
+| Role | Pages | Permissions |
+|------|-------|-------------|
+| **HR** | Dashboard, Employees, Salary, Tasks, Leaves, Attendance, Announcements, Departments, Designations | Full CRUD on all entities |
+| **Employee** | My Profile, Attendance, My Salary Slips, My Leaves, My Tasks, Announcements | View and manage own data only |
+
+---
 
 ### 📊 HR Dashboard
-- Live stats: total employees, HR count, department count, designation count
-- Quick action buttons for common tasks
-- Recent employees table
+- Live stats: total employees, HR count, department count, designation count, overdue tasks
+- Quick action buttons for the most common HR tasks
+- Recent employees table with department and role badges
+
+---
 
 ### 👤 Employee Management
 - Full employee list with department, designation, and role badges
-- Add / Edit form with skeleton loading on edit
+- Add / Edit form split into sections: Basic Info, Contact, Address, Job Info
+- Skeleton loading on edit form while data fetches from API
 - Loading button states to prevent double-submit
 - Confirm before delete with per-row loading indicator
 
+---
+
+### 💰 Salary Management + Salary Slips
+
+**HR side — `/salary`**
+- Add monthly salary records per employee (Basic, HRA, DA, Bonus, Deductions)
+- Net salary computed automatically with a live preview before saving
+- Edit and delete existing salary records
+- Duplicate month/year prevention per employee enforced on backend
+
+**Employee side — `/my-salary`**
+- View all own salary slips as clickable cards
+- Click any month to open a formatted, printable salary slip modal
+- Full breakdown: Basic → HRA → DA → Bonus → Deductions → **Net Salary**
+- Print button triggers browser print dialog (works as PDF download too)
+
+> HR manages the data. Employees see their own slice as formatted slips. Same database, different perspective.
+
+---
+
+### ✅ Task Management
+- HR assigns tasks with title, description, due date, and priority (Low / Medium / High)
+- Status tracking: **Pending → In Progress → Completed**
+- Overdue task detection with red card highlight
+- Employees update their own task status with an optional completion note
+- Clickable stat pills to filter tasks by status
+- Card-based layout for easy at-a-glance scanning
+
+---
+
+### 📅 Leave Management
+- **Employee:** Apply for Casual, Sick, Earned, or Unpaid leave with date range and reason
+- **Employee:** Cancel own pending leave requests before HR acts on them
+- **HR:** View all leave requests, filter pending ones
+- **HR:** Approve with one click or reject with a typed rejection reason
+- Rejection reason is shown to the employee in the table
+- Total days auto-calculated from date range on the backend
+
+| Status | Color |
+|--------|-------|
+| Pending | 🟡 Yellow |
+| Approved | 🟢 Green |
+| Rejected | 🔴 Red |
+
+---
+
+### 🕐 Attendance
+
+**Employee side:**
+- One-click **Check In** — records current timestamp automatically
+- **Check Out** appears after check-in — calculates working hours
+- Working hours < 4 automatically marks as **Half Day**
+- Today's status panel: shows check-in time, check-out time, and hours worked
+- Monthly summary cards: Present / Absent / Half Day / On Leave / Total Hours
+- Filter attendance history by month and year
+
+**HR side:**
+- Monitor all employee attendance in a sortable table
+- Filter by month and year
+- Add manual attendance entries for corrections
+- Status options: Present / Absent / Half Day / Leave
+- Unique constraint prevents duplicate entries per employee per day
+
+---
+
+### 📢 Announcements
+
+**HR side — `/announcements`**
+- Post announcements with title, content, and target audience
+- Target options: **Everyone / HR Only / Employees Only**
+- Edit and soft-delete announcements
+
+**Employee side — `/my-announcements`**
+- Automatically filtered to show only relevant announcements (All + own role)
+- Color-coded dots by audience type
+- Clean chronological list view
+
+---
+
 ### 🏢 Department & Designation Management
-- Full CRUD with inline form editing
-- Reactive Forms with validation
-- Designations linked to departments via foreign key
+- Full CRUD with inline form editing at top of page
+- Reactive Forms with required field validation
+- Unique name enforcement on backend
+- Designations linked to departments via foreign key dropdown
 
-### 🙋 My Profile (Employee Role)
-- Avatar with initials, role badge, contact and address cards
-- Toggle edit mode to update personal details
-- Profile saved with optimistic loading feedback
+---
 
-### 🔒 Authentication
-- Email + password login with loading state
-- JWT token-based API authentication
-- Auto-logout on 401 (session expiry)
-- sessionStorage — clears automatically on tab close
+### 🙋 My Profile (Employee)
+- Avatar with auto-generated initials from employee name
+- Role badge, designation, contact info cards, address cards
+- Toggle edit mode to update own personal details
+- Saving state shown on update button
 
 ---
 
@@ -94,11 +181,12 @@ git clone https://github.com/CHARAN-DUSA/C-Sharp.git
 cd C-Sharp
 ```
 
-### 2. Start SQL Server (Docker via WSL2 on Windows)
+### 2. Start SQL Server via Docker (WSL2 on Windows)
 
 ```bash
 # In WSL terminal
 sudo service docker start
+
 docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Password@123" \
   -p 1433:1433 --name sqlserver \
   -v sqlvolume:/var/opt/mssql \
@@ -106,7 +194,7 @@ docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Password@123" \
 ```
 
 ```powershell
-# In Admin PowerShell (Windows) — bridge WSL2 network
+# In Admin PowerShell — bridge WSL2 network to Windows
 netsh interface portproxy add v4tov4 `
   listenport=1433 listenaddress=0.0.0.0 `
   connectport=1433 connectaddress=$(wsl hostname -I)
@@ -117,18 +205,24 @@ netsh interface portproxy add v4tov4 `
 ```bash
 cd Employee.Api
 
-# Set connection string via user secrets
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
-  "Server=localhost,1433;Database=EmployeeDB;User Id=sa;Password=Password@123;TrustServerCertificate=True"
+# Install required EF Core packages
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package Microsoft.EntityFrameworkCore.Design
 
-# Apply EF Core migrations (auto-creates database)
+# Set connection string securely via user secrets
+dotnet user-secrets set "ConnectionStrings:empCon" \
+  "Server=localhost,1433;Database=employeeManageDb;User Id=sa;Password=Password@123;TrustServerCertificate=True"
+
+# Create and apply database migrations
+dotnet ef migrations add InitialSetup
 dotnet ef database update
 
-# Run the API
+# Start the API
 dotnet run
 ```
 
-> API available at: `https://localhost:7033`
+> API runs at: `https://localhost:7033`  
 > Swagger UI at: `https://localhost:7033/swagger`
 
 ### 4. Set up and run the Frontend
@@ -141,13 +235,13 @@ npm install
 ng serve
 ```
 
-> App available at: `http://localhost:4200`
+> App runs at: `http://localhost:4200`
 
 ---
 
 ## 🔄 Daily Development Workflow
 
-Every time you return to development, follow this order:
+Follow this order every time you start development:
 
 ```
 1. WSL terminal        →  sudo service docker start
@@ -159,68 +253,141 @@ Every time you return to development, follow this order:
 
 ---
 
+## 📄 Pages Overview
+
+### HR Pages
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/dashboard` | Dashboard | Stats cards, quick actions, recent employees |
+| `/employees` | Employee List | Full CRUD employee table |
+| `/new-employee` | Add Employee | Multi-section form |
+| `/new-employee/:id` | Edit Employee | Pre-filled with skeleton loading |
+| `/salary` | Salary Management | Add/edit/delete monthly salary records |
+| `/tasks` | Task Management | Assign and monitor all employee tasks |
+| `/leaves` | Leave Requests | Approve or reject with reason modal |
+| `/attendance` | Attendance Monitor | View all + add manual entries |
+| `/announcements` | Announcements | Post with audience targeting |
+| `/departments` | Departments | CRUD with active/inactive status |
+| `/designations` | Designations | CRUD linked to departments |
+
+### Employee Pages
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/my-profile` | My Profile | View and edit own personal details |
+| `/attendance` | My Attendance | Check in/out + monthly summary cards |
+| `/my-salary` | Salary Slips | View and print own formatted salary slips |
+| `/leaves` | My Leaves | Apply, track, and cancel leave requests |
+| `/tasks` | My Tasks | View assigned tasks, update status with notes |
+| `/my-announcements` | Announcements | Role-filtered company announcements |
+
+---
+
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     Browser (Angular 19)                 │
-│  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌────────┐ │
-│  │ Dashboard│  │Employees │  │Departments│  │Profile │ │
-│  └──────────┘  └──────────┘  └───────────┘  └────────┘ │
-│       ↓              ↓              ↓             ↓      │
-│  ┌─────────────────────────────────────────────────────┐ │
-│  │  Services (HttpClient + Interceptors + Guards)      │ │
-│  └─────────────────────────────────────────────────────┘ │
-└───────────────────────┬─────────────────────────────────┘
-                        │ HTTPS + JWT Bearer
-┌───────────────────────▼─────────────────────────────────┐
-│              .NET 9 Web API (ASP.NET Core)               │
-│  ┌──────────────────┐   ┌──────────────────────────────┐ │
-│  │   Controllers    │   │  Middleware Pipeline         │ │
-│  │  - Employee      │   │  - JWT Auth                  │ │
-│  │  - Department    │   │  - CORS                      │ │
-│  │  - Designation   │   │  - HTTPS Redirect            │ │
-│  └──────────────────┘   └──────────────────────────────┘ │
-│  ┌─────────────────────────────────────────────────────┐ │
-│  │         Entity Framework Core (Code First)          │ │
-│  └─────────────────────────────────────────────────────┘ │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-┌───────────────────────▼─────────────────────────────────┐
-│          SQL Server 2022 (Docker Container)              │
-│   DepartmentMaster → DesignationMaster → EmployeeMaster  │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                       Browser (Angular 19)                        │
+│                                                                    │
+│  HR:  Dashboard │ Employees │ Salary │ Tasks │ Leaves             │
+│       Attendance │ Announcements │ Departments │ Designations      │
+│                                                                    │
+│  EMP: Profile │ Attendance │ Salary Slips │ Leaves │ Tasks        │
+│       My Announcements                                             │
+│                                                                    │
+│  ┌──────────────────────────────────────────────────────────┐     │
+│  │  Services │ HTTP Interceptor │ Route Guards │ Signals     │     │
+│  └──────────────────────────────────────────────────────────┘     │
+└───────────────────────────┬──────────────────────────────────────┘
+                            │ HTTPS + JWT Bearer Token
+┌───────────────────────────▼──────────────────────────────────────┐
+│                    .NET 9 Web API (ASP.NET Core)                   │
+│                                                                    │
+│  EmployeeMaster │ Department │ Designation │ Salary │ Task        │
+│  Leave │ Attendance │ Announcement                                 │
+│                                                                    │
+│  ┌──────────────────────────────────────────────────────────┐     │
+│  │              Entity Framework Core (Code First)           │     │
+│  └──────────────────────────────────────────────────────────┘     │
+└───────────────────────────┬──────────────────────────────────────┘
+                            │
+┌───────────────────────────▼──────────────────────────────────────┐
+│                 SQL Server 2022 (Docker Container)                 │
+│                                                                    │
+│  departmentTbl ──► designationTbl ──► employeeTbl                 │
+│                                            │                       │
+│                    ┌───────────────────────┼──────────────┐       │
+│                    ▼                       ▼              ▼        │
+│                salaryTbl              taskTbl         leaveTbl     │
+│                                                                    │
+│                attendanceTbl          announcementTbl              │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
-### Frontend Structure
+### Frontend Folder Structure
 
 ```
 src/
 ├── app/
-│   ├── components/
-│   │   └── toast/                  # Global toast notification component
-│   ├── guards/
-│   │   └── auth.guard.ts           # authGuard + hrGuard
-│   ├── interceptors/
-│   │   └── auth.interceptor.ts     # 401 auto-logout handler
-│   ├── modes/                      # TypeScript models & interfaces
+│   ├── components/toast/             # Global toast notifications
+│   ├── guards/auth.guard.ts          # authGuard + hrGuard
+│   ├── interceptors/                 # 401 auto-logout interceptor
+│   ├── modes/                        # TypeScript models & interfaces
 │   ├── pages/
-│   │   ├── login/                  # Login page
-│   │   ├── header/                 # Sidebar layout + router-outlet
-│   │   ├── dashboard/              # HR stats & quick actions
-│   │   ├── employee-form/          # Add / Edit employee
-│   │   ├── employee-list/          # Employee table
-│   │   ├── department/             # Department CRUD
-│   │   ├── designation/            # Designation CRUD
-│   │   └── my-profile/             # Employee self-profile
+│   │   ├── login/
+│   │   ├── header/                   # Sidebar + router-outlet
+│   │   ├── dashboard/                # HR dashboard
+│   │   ├── employee-form/            # Add / Edit employee
+│   │   ├── employee-list/            # Employee table
+│   │   ├── salary/                   # HR: manage salary records
+│   │   ├── salary-slip/              # Employee: view & print slips
+│   │   ├── tasks/                    # Both roles: task management
+│   │   ├── leaves/                   # Both roles: leave management
+│   │   ├── attendance/               # Both roles: attendance
+│   │   ├── announcements/            # HR: manage announcements
+│   │   ├── my-announcements/         # Employee: view announcements
+│   │   ├── department/
+│   │   ├── designation/
+│   │   └── my-profile/
 │   └── services/
-│       ├── employee-service.ts     # Employee API methods
-│       ├── master.ts               # Dept & Designation API methods
-│       ├── session.service.ts      # sessionStorage wrapper
-│       └── toast.service.ts        # Signal-based toast service
+│       ├── employee-service.ts       # All API methods
+│       ├── master.ts                 # Dept & Designation API
+│       ├── session.service.ts        # sessionStorage wrapper
+│       └── toast.service.ts          # Signal-based toast service
 └── environments/
-    ├── environment.ts              # Dev API URL
-    └── environment.prod.ts         # Production API URL
+    ├── environment.ts                # Dev API URL
+    └── environment.prod.ts           # Production API URL
+```
+
+---
+
+## 🗄️ Database
+
+### Tables
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `departmentTbl` | Departments | DepartmentId, DepartmentName, IsActive |
+| `designationTbl` | Job titles | DesignationId, DesignationName, DepartmentId (FK) |
+| `employeeTbl` | All employee data | EmployeeId, Name, Email, Role, DesignationId (FK) |
+| `salaryTbl` | Monthly salary records | SalaryId, EmployeeId (FK), BasicSalary, HRA, DA, Bonus, Deductions, NetSalary, Month, Year |
+| `taskTbl` | Assigned tasks | TaskId, Title, AssignedToEmployeeId (FK), DueDate, Status, Priority |
+| `leaveTbl` | Leave requests | LeaveId, EmployeeId (FK), LeaveType, FromDate, ToDate, Status |
+| `attendanceTbl` | Daily attendance | AttendanceId, EmployeeId (FK), Date, CheckIn, CheckOut, WorkingHours, Status |
+| `announcementTbl` | Announcements | AnnouncementId, Title, Content, TargetRole, IsActive |
+
+### Key Constraints
+- `attendanceTbl` — unique index on `(EmployeeId, Date)` — one record per employee per day
+- `salaryTbl` — unique `(EmployeeId, Month, Year)` enforced in controller
+- `leaveTbl` — cancellation only allowed when `Status = 'Pending'`
+- `announcementTbl` — soft delete via `IsActive = false`
+
+### EF Core Migrations
+
+```bash
+dotnet ef migrations add YourMigrationName
+dotnet ef database update
 ```
 
 ---
@@ -229,92 +396,38 @@ src/
 
 ### JWT Authentication
 - Backend issues a signed JWT on successful login
-- Angular `authInterceptor` catches **401 Unauthorized** responses and auto-clears the session + redirects to login
-- Token should be set to expire in 60 minutes in production
+- `authInterceptor` catches **401 Unauthorized** and auto-clears session + redirects to `/login`
+- Set token expiry to 60 minutes in production
 
 ### sessionStorage vs localStorage
 
 | | localStorage | sessionStorage ✅ used here |
 |--|--|--|
-| **Cleared on tab close** | ❌ No | ✅ Yes |
-| **Cross-tab access** | ❌ Yes (risky) | ✅ No (isolated) |
-| **Risk on shared PC** | ❌ High | ✅ Low |
+| Cleared on tab close | ❌ No | ✅ Yes |
+| Cross-tab access | ❌ Yes (risky) | ✅ No (isolated) |
+| Risk on shared PC | ❌ High | ✅ Low |
 
 ### Route Guards
-
 ```typescript
-// authGuard — blocks unauthenticated access
-// hrGuard  — blocks Employee role from HR pages
+authGuard  // unauthenticated users → /login
+hrGuard    // Employee role on HR routes → /my-profile
 ```
-
-All HR routes are protected by `hrGuard`. Even if an employee manually types `/dashboard` in the browser, they are immediately redirected to `/my-profile`.
 
 ### CORS
-
 ```csharp
-// Program.cs — allow Angular dev server
 policy.WithOrigins("http://localhost:4200")
-      .AllowAnyHeader()
-      .AllowAnyMethod();
+      .AllowAnyHeader().AllowAnyMethod();
 ```
 
-> ⚠️ Update this to your production domain before deploying.
+> ⚠️ Change to your production domain before deploying.
 
 ### Password Security
-
-> ⚠️ The current implementation uses contact number as a password for demo purposes. Before going to production, implement proper password hashing:
+> ⚠️ Current build uses contact number as password for demo. For production:
 
 ```csharp
-// Install: BCrypt.Net-Next
-string hash   = BCrypt.Net.BCrypt.HashPassword(plainTextPassword);
-bool   valid  = BCrypt.Net.BCrypt.Verify(plainTextPassword, hash);
-```
-
----
-
-## 🗄️ Database
-
-### Schema
-
-```
-DepartmentMaster
-  └── DepartmentId (PK)
-  └── DepartmentName
-  └── IsActive
-       │
-       ▼
-DesignationMaster
-  └── DesignationId (PK)
-  └── DesignationName
-  └── DepartmentId (FK → DepartmentMaster)
-       │
-       ▼
-EmployeeMaster
-  └── EmployeeId (PK)
-  └── Name, Email, ContactNo, AltContactNo
-  └── City, State, Pincode, Address
-  └── Role (HR | Employee)
-  └── DesignationId (FK → DesignationMaster)
-  └── CreatedDate, ModifiedDate
-```
-
-### EF Core Migrations
-
-```bash
-# Create a new migration after model changes
-dotnet ef migrations add YourMigrationName
-
-# Apply to database
-dotnet ef database update
-```
-
-> The API calls `Database.Migrate()` on startup — schema auto-updates every time the API runs.
-
-### Connection String (User Secrets — never commit to Git)
-
-```bash
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
-  "Server=localhost,1433;Database=EmployeeDB;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True"
+// Install: dotnet add package BCrypt.Net-Next
+string hash  = BCrypt.Net.BCrypt.HashPassword(plainText);
+bool   valid = BCrypt.Net.BCrypt.Verify(plainText, hash);
 ```
 
 ---
@@ -323,12 +436,12 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
 
 | Layer | Technology | Version |
 |-------|-----------|---------|
-| Frontend Framework | Angular (Standalone + Signals) | 19 |
+| Frontend | Angular Standalone + Signals | 19 |
 | UI | Bootstrap + Font Awesome | 5 |
-| Backend Framework | ASP.NET Core Web API | .NET 9 |
+| Backend | ASP.NET Core Web API | .NET 9 |
 | ORM | Entity Framework Core | 9 |
 | Database | SQL Server | 2022 |
-| Container | Docker (WSL2) | Latest |
+| Container | Docker via WSL2 | Latest |
 | Auth | JWT Bearer Tokens | — |
 | Session | Browser sessionStorage | — |
 
@@ -337,15 +450,15 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
 ## 🚧 Roadmap
 
 - [ ] Password hashing with BCrypt
-- [ ] Pagination on employee list
-- [ ] Search and filter on employee list
-- [ ] Leave management module
-- [ ] Email notifications on employee creation
-- [ ] Export employee list to Excel / PDF
+- [ ] Leave balance tracking per employee per year
+- [ ] Pagination on employee list (filter endpoint already built)
+- [ ] Export attendance to Excel
+- [ ] Export salary slip directly to PDF
+- [ ] Email notifications on leave approval/rejection
 - [ ] Dark mode toggle
-- [ ] Unit tests with xUnit (.NET) and Jasmine (Angular)
+- [ ] Unit tests — xUnit (.NET) + Jasmine (Angular)
 - [ ] CI/CD pipeline with GitHub Actions
-- [ ] Deploy to Azure (App Service + Azure SQL)
+- [ ] Deploy to Azure App Service + Azure SQL
 
 ---
 
@@ -361,42 +474,58 @@ apiUrl: 'https://localhost:7033/api'
 </details>
 
 <details>
-<summary><b>Skeleton shows forever / data never loads</b></summary>
+<summary><b>EF Core migration fails — table already exists</b></summary>
 
-Check the browser Console (F12) for errors. Make sure `isLoading.set(false)` is called in **both** `next` and `error` callbacks of your subscribe.
+Your database was created manually. Create the migrations history table in SSMS first:
+```sql
+USE employeeManageDb;
+CREATE TABLE [__EFMigrationsHistory] (
+    [MigrationId]    NVARCHAR(150) NOT NULL,
+    [ProductVersion] NVARCHAR(32)  NOT NULL,
+    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+);
+```
+Then add a migration, empty its `Up()` method, and run `dotnet ef database update`.
 </details>
 
 <details>
-<summary><b>400 Bad Request on Save</b></summary>
+<summary><b>Decimal precision warnings on SalaryModel</b></summary>
 
-Open DevTools → Network → click the failed request → Response tab. Usually caused by `designationId` being sent as a string `"0"` instead of a number. Use `[ngValue]` instead of `[value]` on the `<option>` element in the designation dropdown.
+Add `[Column(TypeName = "decimal(18,2)")]` to every decimal property in `SalaryModel.cs`.
+</details>
+
+<details>
+<summary><b>Skeleton shows forever / data never loads</b></summary>
+
+Ensure `isLoading.set(false)` is called in **both** `next` and `error` callbacks of every subscribe. Check browser Console (F12) for API errors.
+</details>
+
+<details>
+<summary><b>Check-in says "Already checked in today"</b></summary>
+
+One check-in per employee per day is enforced. To reset for testing, delete today's row from `attendanceTbl` in SSMS.
+</details>
+
+<details>
+<summary><b>400 Bad Request on Save Employee</b></summary>
+
+Usually `designationId` sent as string `"0"`. Use `[ngValue]` not `[value]` on dropdown option elements.
 </details>
 
 <details>
 <summary><b>Docker / SQL Server not connecting</b></summary>
 
 ```bash
-# Check if container is running
-docker ps
-
-# Start it if stopped
-docker start sqlserver
-
-# Re-run port proxy in Admin PowerShell
-netsh interface portproxy add v4tov4 listenport=1433 listenaddress=0.0.0.0 connectport=1433 connectaddress=$(wsl hostname -I)
+docker ps                 # check if running
+docker start sqlserver    # start if stopped
 ```
+Then re-run the `netsh` port proxy command in Admin PowerShell.
 </details>
 
 <details>
-<summary><b>Cannot find module environments/environment</b></summary>
+<summary><b>Angular signal warning in template</b></summary>
 
-Make sure the file is at `src/environments/environment.ts` — **not** inside `src/app/environments/`.
-</details>
-
-<details>
-<summary><b>Angular signal warning: isLoading is a function</b></summary>
-
-Signals must be called as functions in templates. Change `isLoading` to `isLoading()` everywhere in HTML.
+Signals must be called as functions. Change `isLoading` → `isLoading()` in all HTML templates.
 </details>
 
 ---
@@ -405,15 +534,15 @@ Signals must be called as functions in templates. Change `isLoading` to `isLoadi
 
 - [ ] Change SA password to a strong unique value
 - [ ] Move connection string to environment variables or Azure Key Vault
-- [ ] Set JWT secret to a 256-bit random key
-- [ ] Set JWT expiry to 60 minutes
+- [ ] Set JWT secret key to 256-bit random value with 60-minute expiry
 - [ ] Implement BCrypt password hashing
-- [ ] Update CORS to production domain only
+- [ ] Update CORS to production frontend domain only
 - [ ] Remove or protect Swagger UI
 - [ ] Update `environment.prod.ts` with production API URL
 - [ ] Run `ng build --configuration production`
 - [ ] Use managed SQL (Azure SQL / AWS RDS) instead of Docker
 - [ ] Enable automated database backups
+- [ ] Create dedicated SQL user with minimal permissions (not SA)
 
 ---
 
