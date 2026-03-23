@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-production-api.com/api'
+  apiUrl = 'https://c-sharp-e8bi.onrender.com/api';
 };
