@@ -1,20 +1,20 @@
 import { Routes } from '@angular/router';
-import { authGuard, hrGuard } from './guards/auth.guard';
-import { Login }            from './pages/login/login';
-import { Header }           from './pages/header/header';
-import { Dashboard }        from './pages/dashboard/dashboard';
-import { EmployeeForm }     from './pages/employee-form/employee-form';
-import { EmployeeList }     from './pages/employee-list/employee-list';
-import { Department }       from './pages/department/department';
-import { Designation }      from './pages/designation/designation';
-import { MyProfile }        from './pages/my-profile/my-profile';
-import { Salary }           from './pages/salary/salary';
-import { Tasks }            from './pages/tasks/tasks';
-import { Announcements }    from './pages/announcements/announcements';
-import { Leaves }           from './pages/leaves/leaves';
-import { Attendance }       from './pages/attendance/attendance';
-import { SalarySlip }       from './pages/salary-slips/salary-slips';
-import { MyAnnouncements }  from './pages/my-announcements/my-announcements';
+import { Login } from './auth/login/login';
+import { Attendance } from './common/attendance/attendance';
+import { Leaves } from './common/leaves/leaves';
+import { Tasks } from './common/tasks/tasks';
+import { Dashboard } from './employee/dashboard/dashboard';
+import { MyAnnouncements } from './employee/my-announcements/my-announcements';
+import { MyProfile } from './employee/my-profile/my-profile';
+import { SalarySlip } from './employee/salary-slips/salary-slips';
+import { Announcements } from './hrAdmin/announcements/announcements';
+import { Department } from './hrAdmin/department/department';
+import { Designation } from './hrAdmin/designation/designation';
+import { EmployeeForm } from './hrAdmin/employee-form/employee-form';
+import { EmployeeList } from './hrAdmin/employee-list/employee-list';
+import { Salary } from './hrAdmin/salary/salary';
+import { Header } from './layout/header/header';
+import { authGuard, hrGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
