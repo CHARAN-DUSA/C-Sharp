@@ -1,0 +1,49 @@
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+.page-sub {
+  font-size: 13px;
+  color: #64748b;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.net-preview {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.net-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+.net-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #16a34a;
+}
+.skeleton {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

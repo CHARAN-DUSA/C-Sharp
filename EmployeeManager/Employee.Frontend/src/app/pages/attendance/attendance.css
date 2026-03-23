@@ -1,0 +1,127 @@
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+.page-sub {
+  font-size: 13px;
+  color: #64748b;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.checkin-panel {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+.checkin-time {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+.checkin-status {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.checkin-status.not-marked {
+  color: #d97706;
+}
+.checkin-status.checked-in {
+  color: #0ea5e9;
+}
+.checkin-status.done {
+  color: #16a34a;
+  line-height: 2;
+}
+.working-hours {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.btn-checkin {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-checkin:hover:not(:disabled) {
+  background: #15803d;
+}
+.btn-checkin:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-checkout {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-checkout:hover:not(:disabled) {
+  background: #b91c1c;
+}
+.btn-checkout:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.summary-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sum-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  flex: 1;
+  min-width: 90px;
+}
+.sum-card.green .sum-num {
+  color: #16a34a;
+}
+.sum-card.red .sum-num {
+  color: #dc2626;
+}
+.sum-card.amber .sum-num {
+  color: #d97706;
+}
+.sum-card.blue .sum-num {
+  color: #0ea5e9;
+}
+.sum-card.purple .sum-num {
+  color: #7c3aed;
+}
+.sum-num {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+.sum-lbl {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 4px;
+  text-align: center;
+}

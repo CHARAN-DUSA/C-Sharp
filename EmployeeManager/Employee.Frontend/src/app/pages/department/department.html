@@ -1,0 +1,111 @@
+<div class="container mt-5">
+  <!-- Form Card -->
+  <div class="card p-4 mb-4">
+    <h4 class="mb-3">Department Management</h4>
+
+    <form #deptForm="ngForm">
+      <div class="row align-items-end">
+        <!-- Department Name -->
+        <div class="col-md-3">
+          <label for="departmentName" class="form-label">Department Name</label>
+
+          <input
+            type="text"
+            id="departmentName"
+            name="departmentName"
+            [(ngModel)]="newDeptObj.departmentName"
+            #deptName="ngModel"
+            required
+            class="form-control"
+            placeholder="Enter department"
+          />
+
+          <!-- 🔥 Validation -->
+          <div *ngIf="deptName.invalid && deptName.touched" class="text-danger">
+            Department Name is required
+          </div>
+        </div>
+
+        <!-- Is Active -->
+        <div class="col-md-2">
+          <div class="form-check mt-4">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="isActive"
+              name="isActive"
+              [(ngModel)]="newDeptObj.isActive"
+            />
+
+            <label class="form-check-label" for="isActive"> Is Active </label>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-md-3 mt-3">
+          @if (newDeptObj.departmentId == 0) {
+            <button
+              type="button"
+              (click)="onSaveDept()"
+              class="btn btn-success me-2"
+              [disabled]="deptForm.invalid"
+            >
+              Save
+            </button>
+          } @else {
+            <button type="button" (click)="onUpdateDept()" class="btn btn-warning me-2">
+              Update
+            </button>
+          }
+
+          <button type="button" (click)="resetForm()" class="btn btn-secondary">Reset</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card p-4">
+    <h5 class="mb-3">Department List</h5>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Department Name</th>
+            <th>Is Active</th>
+            <th style="width: 150px">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (item of deptList(); track $index) {
+            <tr>
+              <td>{{ $index + 1 }}</td>
+              <td>{{ item.departmentName }}</td>
+
+              <!-- 🔥 Better UI -->
+              <td>
+                <span *ngIf="item.isActive" class="badge bg-success">Active</span>
+                <span *ngIf="!item.isActive" class="badge bg-danger">Inactive</span>
+              </td>
+
+              <td>
+                <button class="btn btn-sm btn-primary me-1" (click)="onEdit(item)">Edit</button>
+                <button class="btn btn-sm btn-danger" (click)="onDelete(item)">Delete</button>
+              </td>
+            </tr>
+          }
+
+          <!-- Empty state -->
+          <tr *ngIf="deptList().length === 0">
+            <td colspan="4" class="text-center text-muted">No departments found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+

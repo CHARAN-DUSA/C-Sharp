@@ -1,0 +1,128 @@
+<div class="container mt-4">
+  <div class="page-header mb-4">
+    <h2 class="page-title">Salary Management</h2>
+    <span class="page-sub">Manage monthly salary records for all employees</span>
+  </div>
+
+  <!-- Form -->
+  <div class="card p-4 mb-4 shadow-sm">
+    <h5 class="section-title mb-3">
+      {{ isEditing() ? '✏️ Edit Salary Record' : '➕ Add Salary Record' }}
+    </h5>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Employee</label>
+        <select class="form-select" [(ngModel)]="salaryObj.employeeId" name="employeeId"
+          [disabled]="isEditing()">
+          <option [ngValue]="0">Select Employee</option>
+          @for (e of employeeList(); track e.employeeId) {
+            <option [ngValue]="e.employeeId">{{ e.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Month</label>
+        <select class="form-select" [(ngModel)]="salaryObj.month" name="month">
+          @for (m of months; track m.value) {
+            <option [ngValue]="m.value">{{ m.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Year</label>
+        <select class="form-select" [(ngModel)]="salaryObj.year" name="year">
+          @for (y of years; track y) {
+            <option [ngValue]="y">{{ y }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Basic Salary (₹)</label>
+        <input type="number" class="form-control" [(ngModel)]="salaryObj.basicSalary" min="0"/>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">HRA (₹)</label>
+        <input type="number" class="form-control" [(ngModel)]="salaryObj.hra" min="0"/>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">DA (₹)</label>
+        <input type="number" class="form-control" [(ngModel)]="salaryObj.da" min="0"/>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Bonus (₹)</label>
+        <input type="number" class="form-control" [(ngModel)]="salaryObj.bonus" min="0"/>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Deductions (₹)</label>
+        <input type="number" class="form-control" [(ngModel)]="salaryObj.deductions" min="0"/>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <div class="net-preview">
+          <span class="net-label">Net Salary</span>
+          <span class="net-value">₹{{ netSalaryPreview | number }}</span>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Remarks</label>
+        <input type="text" class="form-control" [(ngModel)]="salaryObj.remarks"
+          placeholder="Optional remarks"/>
+      </div>
+      <div class="col-md-12 text-end">
+        @if (!isEditing()) {
+          <button class="btn btn-success me-2" (click)="onSave()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Saving...' : 'Save' }}
+          </button>
+        } @else {
+          <button class="btn btn-warning me-2" (click)="onUpdate()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Updating...' : 'Update' }}
+          </button>
+        }
+        <button class="btn btn-secondary" (click)="reset()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card p-3 shadow-sm">
+    @if (isLoading()) {
+      <div class="text-center p-4"><div class="spinner-border text-primary"></div></div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th><th>Employee</th><th>Month/Year</th>
+              <th>Basic</th><th>HRA</th><th>DA</th>
+              <th>Bonus</th><th>Deductions</th>
+              <th class="text-success">Net Salary</th>
+              <th>Remarks</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of salaryList(); track s.salaryId) {
+              <tr>
+                <td>{{ $index + 1 }}</td>
+                <td><strong>{{ s.employeeName }}</strong></td>
+                <td><span class="badge bg-info text-dark">{{ getMonthName(s.month) }} {{ s.year }}</span></td>
+                <td>₹{{ s.basicSalary | number }}</td>
+                <td>₹{{ s.hra | number }}</td>
+                <td>₹{{ s.da | number }}</td>
+                <td>₹{{ s.bonus | number }}</td>
+                <td class="text-danger">₹{{ s.deductions | number }}</td>
+                <td><strong class="text-success">₹{{ s.netSalary | number }}</strong></td>
+                <td class="text-muted">{{ s.remarks || '—' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-primary me-1" (click)="onEdit(s)">Edit</button>
+                  <button class="btn btn-sm btn-danger" (click)="onDelete(s.salaryId)">Delete</button>
+                </td>
+              </tr>
+            }
+            @if (salaryList().length === 0) {
+              <tr><td colspan="11" class="text-center text-muted">No salary records found</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

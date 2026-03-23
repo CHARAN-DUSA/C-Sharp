@@ -1,0 +1,128 @@
+@if (isLoading()) {
+  <div class="container mt-5">
+    <h3 class="text-center mb-4">Employee Management Form</h3>
+    @for (s of [1,2,3,4]; track s) {
+      <div class="card p-4 mb-4 shadow-sm">
+        <div class="skeleton skeleton-title mb-3"></div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="skeleton skeleton-label mb-1"></div>
+            <div class="skeleton skeleton-input"></div>
+          </div>
+          <div class="col-md-4">
+            <div class="skeleton skeleton-label mb-1"></div>
+            <div class="skeleton skeleton-input"></div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@if (!isLoading()) {
+  <div class="container mt-5">
+    <h3 class="text-center mb-4 main-title">Employee Management Form</h3>
+
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="section-title mb-3">👤 Basic Information</h5>
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">Name</label>
+          <input type="text" [(ngModel)]="newEmployeeObj.name"
+            class="form-control" placeholder="Enter name"/>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Email</label>
+          <input type="email" [(ngModel)]="newEmployeeObj.email"
+            class="form-control" placeholder="Enter email"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="section-title mb-3">📞 Contact Information</h5>
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">Contact No</label>
+          <input type="text" [(ngModel)]="newEmployeeObj.contactNo"
+            class="form-control" placeholder="Enter contact number"/>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Alternate Contact</label>
+          <input type="text" [(ngModel)]="newEmployeeObj.altContactNo"
+            class="form-control" placeholder="Enter alternate number"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="section-title mb-3">📍 Address Information</h5>
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">City</label>
+          <input type="text" [(ngModel)]="newEmployeeObj.city"
+            class="form-control" placeholder="Enter city"/>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">State</label>
+          <input type="text" [(ngModel)]="newEmployeeObj.state"
+            class="form-control" placeholder="Enter state"/>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Pincode</label>
+          <input type="text" [(ngModel)]="newEmployeeObj.pincode"
+            class="form-control" placeholder="Enter pincode"/>
+        </div>
+        <div class="col-md-12 mt-3">
+          <label class="form-label">Address</label>
+          <textarea class="form-control" rows="2"
+            [(ngModel)]="newEmployeeObj.address"
+            placeholder="Enter full address"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="section-title mb-3">💼 Job Information</h5>
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">Role</label>
+          <select class="form-select" [(ngModel)]="newEmployeeObj.role" name="role">
+            <option value="">Select Role</option>
+            <option value="HR">HR</option>
+            <option value="Employee">Employee</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Designation</label>
+          <select class="form-select"
+            [(ngModel)]="newEmployeeObj.designationId"
+            name="designationId">
+            <option [ngValue]="0">Select Designation</option>
+            @for (item of designationList$ | async; track item.designationId) {
+              <option [ngValue]="item.designationId">
+                {{ item.designationName }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-end mb-5">
+      @if (newEmployeeObj.employeeId === 0) {
+        <button type="button" class="btn btn-success btn-custom me-2"
+          (click)="onSave()" [disabled]="isSaving()">
+          {{ isSaving() ? 'Saving...' : 'Save' }}
+        </button>
+      } @else {
+        <button type="button" class="btn btn-info btn-custom me-2"
+          (click)="onUpdate()" [disabled]="isSaving()">
+          {{ isSaving() ? 'Updating...' : 'Update' }}
+        </button>
+      }
+      <button type="button" class="btn btn-secondary btn-custom"
+        (click)="resetForm()">Reset</button>
+    </div>
+  </div>
+}

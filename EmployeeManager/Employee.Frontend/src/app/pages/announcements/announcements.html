@@ -1,0 +1,71 @@
+<div class="container mt-4">
+  <div class="page-header mb-4">
+    <h2 class="page-title">Announcements</h2>
+    <span class="page-sub">Post announcements visible to HR, employees, or everyone</span>
+  </div>
+
+  <!-- Form -->
+  <div class="card p-4 mb-4 shadow-sm">
+    <h5 class="section-title mb-3">{{ isEditing() ? '✏️ Edit Announcement' : '📢 New Announcement' }}</h5>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" [(ngModel)]="obj.title"
+          placeholder="Announcement title"/>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Target Audience</label>
+        <select class="form-select" [(ngModel)]="obj.targetRole">
+          <option value="All">Everyone</option>
+          <option value="HR">HR Only</option>
+          <option value="Employee">Employees Only</option>
+        </select>
+      </div>
+      <div class="col-md-12">
+        <label class="form-label">Content</label>
+        <textarea class="form-control" rows="3" [(ngModel)]="obj.content"
+          placeholder="Write your announcement here..."></textarea>
+      </div>
+      <div class="col-md-12 text-end">
+        @if (!isEditing()) {
+          <button class="btn btn-success me-2" (click)="onSave()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Posting...' : 'Post Announcement' }}
+          </button>
+        } @else {
+          <button class="btn btn-warning me-2" (click)="onUpdate()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Updating...' : 'Update' }}
+          </button>
+        }
+        <button class="btn btn-secondary" (click)="reset()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  @if (isLoading()) {
+    <div class="text-center p-4"><div class="spinner-border text-primary"></div></div>
+  } @else {
+    <div class="announcement-grid">
+      @for (a of list(); track a.announcementId) {
+        <div class="ann-card">
+          <div class="ann-header">
+            <span class="badge {{ targetBadge(a.targetRole) }}">{{ a.targetRole }}</span>
+            <span class="ann-date">{{ a.createdDate | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="ann-title">{{ a.title }}</div>
+          <div class="ann-content">{{ a.content }}</div>
+          <div class="ann-actions">
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="onEdit(a)">Edit</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="onDelete(a.announcementId)">Delete</button>
+          </div>
+        </div>
+      }
+      @if (list().length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-bullhorn"></i>
+          <p>No announcements yet</p>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,123 @@
+<div class="container mt-4">
+  <div class="page-header mb-4">
+    <h2 class="page-title">{{ isHR ? 'Leave Management' : 'My Leaves' }}</h2>
+    <span class="page-sub">{{ isHR ? 'Review and manage employee leave requests' : 'Apply and track your leave requests' }}</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row mb-4">
+    <div class="stat-pill warn"><span class="stat-num">{{ pendingCount }}</span><span class="stat-lbl">Pending</span></div>
+    <div class="stat-pill ok"><span class="stat-num">{{ approvedCount }}</span><span class="stat-lbl">Approved</span></div>
+    <div class="stat-pill err"><span class="stat-num">{{ rejectedCount }}</span><span class="stat-lbl">Rejected</span></div>
+  </div>
+
+  <!-- Apply Form (Employee only) -->
+  @if (!isHR) {
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="section-title mb-3">📝 Apply for Leave</h5>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Leave Type</label>
+          <select class="form-select" [(ngModel)]="leaveObj.leaveType">
+            <option value="Casual">Casual Leave</option>
+            <option value="Sick">Sick Leave</option>
+            <option value="Earned">Earned Leave</option>
+            <option value="Unpaid">Unpaid Leave</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">From Date</label>
+          <input type="date" class="form-control" [(ngModel)]="leaveObj.fromDate"/>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">To Date</label>
+          <input type="date" class="form-control" [(ngModel)]="leaveObj.toDate"/>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Reason</label>
+          <textarea class="form-control" rows="2"
+            [(ngModel)]="leaveObj.reason" placeholder="Reason for leave..."></textarea>
+        </div>
+        <div class="col-md-12 text-end">
+          <button class="btn btn-success" (click)="onApply()" [disabled]="isSaving()">
+            {{ isSaving() ? 'Applying...' : 'Apply Leave' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (isLoading()) {
+    <div class="text-center p-4"><div class="spinner-border text-primary"></div></div>
+  } @else {
+    <div class="card p-3 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              @if (isHR) { <th>Employee</th> }
+              <th>Type</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Days</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Applied</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (l of leaveList(); track l.leaveId) {
+              <tr>
+                <td>{{ $index + 1 }}</td>
+                @if (isHR) { <td><strong>{{ l.employeeName }}</strong></td> }
+                <td><span class="badge bg-info text-dark">{{ l.leaveType }}</span></td>
+                <td>{{ l.fromDate | date:'dd MMM' }}</td>
+                <td>{{ l.toDate | date:'dd MMM yyyy' }}</td>
+                <td class="text-center"><strong>{{ l.totalDays }}</strong></td>
+                <td class="text-muted" style="max-width:160px">{{ l.reason }}</td>
+                <td><span class="badge {{ statusClass(l.status) }}">{{ l.status }}</span></td>
+                <td>{{ l.appliedDate | date:'dd MMM' }}</td>
+                <td>
+                  @if (isHR && l.status === 'Pending') {
+                    <button class="btn btn-sm btn-success me-1" (click)="onApprove(l.leaveId)">✓</button>
+                    <button class="btn btn-sm btn-danger" (click)="openRejectModal(l)">✗</button>
+                  }
+                  @if (!isHR && l.status === 'Pending') {
+                    <button class="btn btn-sm btn-outline-danger" (click)="onCancel(l.leaveId)">Cancel</button>
+                  }
+                  @if (l.status === 'Rejected' && l.rejectionReason) {
+                    <span class="text-danger" style="font-size:11px">{{ l.rejectionReason }}</span>
+                  }
+                </td>
+              </tr>
+            }
+            @if (leaveList().length === 0) {
+              <tr><td colspan="10" class="text-center text-muted">No leave records found</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Reject Modal -->
+@if (rejectModal()) {
+  <div class="modal-overlay" (click)="rejectModal.set(null)">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h5 class="mb-2">Reject Leave Request</h5>
+      <p class="text-muted mb-3">{{ rejectModal()?.employeeName }} — {{ rejectModal()?.leaveType }}</p>
+      <label class="form-label">Rejection Reason</label>
+      <textarea class="form-control mb-3" rows="3"
+        [(ngModel)]="rejectionReason"
+        placeholder="Provide a reason for rejection..."></textarea>
+      <div class="text-end">
+        <button class="btn btn-secondary me-2" (click)="rejectModal.set(null)">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmReject()">Reject Leave</button>
+      </div>
+    </div>
+  </div>
+}

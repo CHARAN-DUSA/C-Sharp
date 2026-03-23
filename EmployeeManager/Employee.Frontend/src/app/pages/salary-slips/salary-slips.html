@@ -1,0 +1,94 @@
+<div class="container mt-4">
+  <div class="page-header mb-4">
+    <h2 class="page-title">My Salary Slips</h2>
+    <span class="page-sub">View and download your monthly salary slips</span>
+  </div>
+
+  @if (isLoading()) {
+    <div class="text-center p-4"><div class="spinner-border text-primary"></div></div>
+  } @else {
+    <div class="slip-grid">
+      @for (s of slips(); track s.salaryId) {
+        <div class="slip-card" (click)="viewSlip(s)">
+          <div class="slip-month">{{ getMonthName(s.month) }} {{ s.year }}</div>
+          <div class="slip-net">₹{{ s.netSalary | number }}</div>
+          <div class="slip-label">Net Salary</div>
+          <div class="slip-meta">
+            <span>Basic: ₹{{ s.basicSalary | number }}</span>
+            <span>Deductions: ₹{{ s.deductions | number }}</span>
+          </div>
+          <div class="slip-view">Click to view full slip →</div>
+        </div>
+      }
+      @if (slips().length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-file-invoice-dollar"></i>
+          <p>No salary slips available yet</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Salary Slip Modal -->
+@if (selectedSlip()) {
+  <div class="slip-overlay" (click)="closeSlip()">
+    <div class="slip-modal" (click)="$event.stopPropagation()" id="printArea">
+
+      <div class="slip-modal-header">
+        <div>
+          <div class="company-name">EmpAdmin</div>
+          <div class="company-sub">Employee Management System</div>
+        </div>
+        <div class="slip-badge">SALARY SLIP</div>
+      </div>
+
+      <div class="slip-period">
+        {{ getMonthName(selectedSlip().month) }} {{ selectedSlip().year }}
+      </div>
+
+      <div class="slip-body">
+        <div class="slip-section">
+          <div class="slip-row">
+            <span>Basic Salary</span>
+            <span>₹{{ selectedSlip().basicSalary | number }}</span>
+          </div>
+          <div class="slip-row earn">
+            <span>HRA</span>
+            <span>+ ₹{{ selectedSlip().hra | number }}</span>
+          </div>
+          <div class="slip-row earn">
+            <span>DA</span>
+            <span>+ ₹{{ selectedSlip().da | number }}</span>
+          </div>
+          <div class="slip-row earn">
+            <span>Bonus</span>
+            <span>+ ₹{{ selectedSlip().bonus | number }}</span>
+          </div>
+          <div class="slip-row deduct">
+            <span>Deductions</span>
+            <span>- ₹{{ selectedSlip().deductions | number }}</span>
+          </div>
+        </div>
+
+        <div class="slip-net-row">
+          <span>Net Salary</span>
+          <span class="net-amount">₹{{ selectedSlip().netSalary | number }}</span>
+        </div>
+
+        @if (selectedSlip().remarks) {
+          <div class="slip-remarks">
+            <i class="fas fa-info-circle me-1"></i>{{ selectedSlip().remarks }}
+          </div>
+        }
+      </div>
+
+      <div class="slip-footer no-print">
+        <button class="btn btn-outline-secondary me-2" (click)="closeSlip()">Close</button>
+        <button class="btn btn-primary" (click)="printSlip()">
+          <i class="fas fa-print me-1"></i> Print / Download
+        </button>
+      </div>
+    </div>
+  </div>
+}

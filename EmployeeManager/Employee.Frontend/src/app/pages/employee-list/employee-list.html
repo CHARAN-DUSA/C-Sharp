@@ -1,0 +1,78 @@
+<div class="container mt-5">
+  <h3 class="text-center mb-4">Employee List</h3>
+
+  <div class="card shadow-sm p-3">
+    <div class="d-flex justify-content-end mb-3">
+      <a routerLink="/new-employee" class="btn btn-success">
+        <i class="fas fa-user-plus me-1"></i> Add Employee
+      </a>
+    </div>
+
+    @if (isLoading()) {
+      <div class="text-center p-4">
+        <div class="spinner-border text-primary"></div>
+      </div>
+    }
+
+    @if (!isLoading()) {
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Email</th>
+              <th>Location</th>
+              <th>Department</th>
+              <th>Designation</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of employeeList(); track item.employeeId) {
+              <tr>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td><strong>{{ item.name }}</strong></td>
+                <td>
+                  {{ item.contactNo }}<br/>
+                  <small class="text-muted">{{ item.altContactNo }}</small>
+                </td>
+                <td>{{ item.email }}</td>
+                <td>
+                  {{ item.city }}, {{ item.state }}<br/>
+                  <small>{{ item.pincode }}</small>
+                </td>
+                <td><span class="badge bg-primary">{{ item.departmentName }}</span></td>
+                <td><span class="badge bg-info text-dark">{{ item.designationName }}</span></td>
+                <td>
+                  <span class="badge"
+                    [ngClass]="item.role === 'HR' ? 'bg-success' : 'bg-secondary'">
+                    {{ item.role }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <a class="btn btn-sm btn-primary me-1"
+                    [routerLink]="['/new-employee', item.employeeId]">
+                    Edit
+                  </a>
+                  <button class="btn btn-sm btn-danger"
+                    (click)="onDelete(item)"
+                    [disabled]="deletingId() === item.employeeId">
+                    {{ deletingId() === item.employeeId ? '...' : 'Delete' }}
+                  </button>
+                </td>
+              </tr>
+            }
+            @if (employeeList().length === 0) {
+              <tr>
+                <td colspan="9" class="text-center text-muted">No employees found</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

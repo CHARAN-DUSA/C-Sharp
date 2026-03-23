@@ -1,7 +1,6 @@
 using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
 using GameStore.Api.Repositories;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace GameStore.Api.Endpoints;
 

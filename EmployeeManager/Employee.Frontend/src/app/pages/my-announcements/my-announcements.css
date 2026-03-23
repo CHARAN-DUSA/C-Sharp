@@ -1,0 +1,58 @@
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+.page-sub {
+  font-size: 13px;
+  color: #64748b;
+}
+.ann-item {
+  display: flex;
+  gap: 16px;
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+.ann-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.ann-body {
+  flex: 1;
+}
+.ann-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.ann-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.ann-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.ann-content {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+}
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: #94a3b8;
+}
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+}

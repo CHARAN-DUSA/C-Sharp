@@ -1,0 +1,29 @@
+<div class="container mt-4">
+  <div class="page-header mb-4">
+    <h2 class="page-title">Announcements</h2>
+    <span class="page-sub">Latest announcements from HR</span>
+  </div>
+
+  @if (isLoading()) {
+    <div class="text-center p-4"><div class="spinner-border text-primary"></div></div>
+  } @else {
+    @for (a of list(); track a.announcementId) {
+      <div class="ann-item">
+        <div class="ann-dot" [style.background]="targetColor(a.targetRole)"></div>
+        <div class="ann-body">
+          <div class="ann-meta">
+            <span class="ann-title">{{ a.title }}</span>
+            <span class="ann-date">{{ a.createdDate | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="ann-content">{{ a.content }}</div>
+        </div>
+      </div>
+    }
+    @if (list().length === 0) {
+      <div class="empty-state">
+        <i class="fas fa-bell-slash"></i>
+        <p>No announcements at the moment</p>
+      </div>
+    }
+  }
+</div>

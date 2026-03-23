@@ -1,0 +1,118 @@
+<div class="container mt-5">
+
+  <!-- 🔥 LOADING SPINNER -->
+  @if (isLoading()) {
+    <div class="text-center mb-3">
+      <div class="spinner-border text-primary"></div>
+    </div>
+  }
+
+  <!-- Form -->
+  <div class="card p-4 mb-4">
+    <h4>Designation Management</h4>
+
+    <form [formGroup]="designationForm">
+      <div class="row">
+
+        <!-- Department -->
+        <div class="col-md-3">
+          <label>Department</label>
+
+          <select class="form-select" formControlName="departmentId">
+            <option [value]="0">Select Department</option>
+
+            @for (d of deptList(); track d.departmentId) {
+              <option [value]="d.departmentId">
+                {{ d.departmentName }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <!-- Name -->
+        <div class="col-md-3">
+          <label>Designation</label>
+
+          <input
+            type="text"
+            class="form-control"
+            formControlName="designationName"
+          />
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-md-4 mt-4">
+
+          @if (!isEditMode()) {
+            <button
+              type="button"
+              class="btn btn-success"
+              (click)="onSaveDesignation()"
+              [disabled]="designationForm.invalid || isLoading()"
+            >
+              Save
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-warning"
+              (click)="onUpdateDesignation()"
+              [disabled]="isLoading()"
+            >
+              Update
+            </button>
+          }
+
+          <button
+            type="button"
+            class="btn btn-secondary ms-2"
+            (click)="resetForm()"
+          >
+            Reset
+          </button>
+
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <!-- Table -->
+  <div class="card p-4">
+    <h5>Designation List</h5>
+
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (item of designationList$ | async; track item.designationId) {
+          <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ getDeptName(item.departmentId) }}</td>
+            <td>{{ item.designationName }}</td>
+
+            <td>
+              <button class="btn btn-sm btn-primary me-1"
+                      (click)="onEditDesignation(item)">
+                Edit
+              </button>
+
+              <button class="btn btn-sm btn-danger"
+                      (click)="onDeleteDesignation(item)">
+                Delete
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+</div>

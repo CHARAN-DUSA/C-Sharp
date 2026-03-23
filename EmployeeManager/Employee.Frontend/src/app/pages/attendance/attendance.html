@@ -1,0 +1,150 @@
+<div class="container mt-4">
+  <div class="page-header mb-4">
+    <h2 class="page-title">{{ isHR ? 'Attendance Monitoring' : 'My Attendance' }}</h2>
+    <span class="page-sub">{{ isHR ? 'Monitor and manage employee attendance records' : 'Mark and track your daily attendance' }}</span>
+  </div>
+
+  <!-- Employee: Check In/Out Panel -->
+  @if (!isHR) {
+    <div class="checkin-panel mb-4">
+      <div class="checkin-time">{{ now | date:'hh:mm a' }} — {{ now | date:'EEEE, dd MMM yyyy' }}</div>
+
+      @if (!todayRecord()) {
+        <div class="checkin-status not-marked">Not marked today</div>
+        <button class="btn btn-checkin" (click)="onCheckIn()" [disabled]="!canCheckIn">
+          <i class="fas fa-sign-in-alt me-2"></i>
+          {{ isActing() ? 'Checking In...' : 'Check In' }}
+        </button>
+      } @else if (!todayRecord().checkOut) {
+        <div class="checkin-status checked-in">
+          Checked in at {{ formatTime(todayRecord().checkIn) }}
+        </div>
+        <button class="btn btn-checkout" (click)="onCheckOut()" [disabled]="!canCheckOut">
+          <i class="fas fa-sign-out-alt me-2"></i>
+          {{ isActing() ? 'Checking Out...' : 'Check Out' }}
+        </button>
+      } @else {
+        <div class="checkin-status done">
+          <div>✅ Checked in: {{ formatTime(todayRecord().checkIn) }}</div>
+          <div>✅ Checked out: {{ formatTime(todayRecord().checkOut) }}</div>
+          <div class="working-hours">
+            Working hours: {{ todayRecord().workingHours?.toFixed(1) }}h
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Monthly Summary -->
+    @if (summary()) {
+      <div class="summary-row mb-4">
+        <div class="sum-card green"><span class="sum-num">{{ summary().present }}</span><span class="sum-lbl">Present</span></div>
+        <div class="sum-card red"><span class="sum-num">{{ summary().absent }}</span><span class="sum-lbl">Absent</span></div>
+        <div class="sum-card amber"><span class="sum-num">{{ summary().halfDay }}</span><span class="sum-lbl">Half Day</span></div>
+        <div class="sum-card blue"><span class="sum-num">{{ summary().onLeave }}</span><span class="sum-lbl">On Leave</span></div>
+        <div class="sum-card purple">
+          <span class="sum-num">{{ summary().totalWorkingHours?.toFixed(0) }}h</span>
+          <span class="sum-lbl">Total Hours</span>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- HR: Manual Entry -->
+  @if (isHR) {
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="section-title mb-3">➕ Add Manual Attendance</h5>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Employee</label>
+          <select class="form-select" [(ngModel)]="manualObj.employeeId">
+            <option [ngValue]="0">Select Employee</option>
+            @for (e of employeeList(); track e.employeeId) {
+              <option [ngValue]="e.employeeId">{{ e.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-control" [(ngModel)]="manualObj.date"/>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Check In</label>
+          <input type="time" class="form-control" [(ngModel)]="manualObj.checkIn"/>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Check Out</label>
+          <input type="time" class="form-control" [(ngModel)]="manualObj.checkOut"/>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Status</label>
+          <select class="form-select" [(ngModel)]="manualObj.status">
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+            <option value="HalfDay">Half Day</option>
+            <option value="Leave">Leave</option>
+          </select>
+        </div>
+        <div class="col-md-12 text-end">
+          <button class="btn btn-success" (click)="onAddManual()">Add Attendance</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filter -->
+  <div class="d-flex gap-3 align-items-center mb-3">
+    <select class="form-select" style="width:160px"
+      [(ngModel)]="selectedMonth" [ngModelOptions]="{standalone:true}"
+      (change)="loadData()">
+      @for (m of months; track m.v) {
+        <option [ngValue]="m.v">{{ m.l }}</option>
+      }
+    </select>
+    <select class="form-select" style="width:110px"
+      [(ngModel)]="selectedYear" [ngModelOptions]="{standalone:true}"
+      (change)="loadData()">
+      @for (y of years; track y) {
+        <option [ngValue]="y">{{ y }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Table -->
+  @if (isLoading()) {
+    <div class="text-center p-4"><div class="spinner-border text-primary"></div></div>
+  } @else {
+    <div class="card p-3 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              @if (isHR) { <th>Employee</th> }
+              <th>Date</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Hours</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of attendanceList(); track a.attendanceId) {
+              <tr>
+                <td>{{ $index + 1 }}</td>
+                @if (isHR) { <td><strong>{{ a.employeeName }}</strong></td> }
+                <td>{{ a.date | date:'EEE, dd MMM' }}</td>
+                <td>{{ formatTime(a.checkIn) }}</td>
+                <td>{{ formatTime(a.checkOut) }}</td>
+                <td>{{ a.workingHours ? (a.workingHours.toFixed(1) + 'h') : '—' }}</td>
+                <td><span class="badge {{ statusClass(a.status) }}">{{ a.status }}</span></td>
+              </tr>
+            }
+            @if (attendanceList().length === 0) {
+              <tr><td colspan="7" class="text-center text-muted">No attendance records for this month</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

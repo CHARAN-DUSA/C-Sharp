@@ -1,0 +1,64 @@
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+.page-sub {
+  font-size: 13px;
+  color: #64748b;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.announcement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.ann-card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  border-top: 4px solid #0ea5e9;
+}
+.ann-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.ann-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.ann-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+.ann-content {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.ann-actions {
+  display: flex;
+}
+.empty-state {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 60px;
+  color: #94a3b8;
+}
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+}

@@ -1,0 +1,158 @@
+<div class="container mt-4">
+
+  <div class="page-header mb-4">
+    <h2 class="page-title">{{ isHR ? 'Task Management' : 'My Tasks' }}</h2>
+    <span class="page-sub">{{ isHR ? 'Assign and track tasks for employees' : 'View and update your assigned tasks' }}</span>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row mb-4">
+  <div class="stat-pill pending" (click)="filterStatus.set('Pending')">
+    <span class="stat-num">{{ pendingCount }}</span>
+    <span class="stat-lbl">Pending</span>
+  </div>
+
+  <div class="stat-pill progress" (click)="filterStatus.set('InProgress')">
+    <span class="stat-num">{{ inProgressCount }}</span>
+    <span class="stat-lbl two-line">In Progress</span>
+  </div>
+
+  <div class="stat-pill done" (click)="filterStatus.set('Completed')">
+    <span class="stat-num">{{ completedCount }}</span>
+    <span class="stat-lbl">Completed</span>
+  </div>
+
+  <div class="stat-pill all" (click)="filterStatus.set('All')">
+    <span class="stat-num">{{ taskList().length }}</span>
+    <span class="stat-lbl">All Tasks</span>
+  </div>
+</div>
+
+  <!-- Form (HR only) -->
+  @if (isHR) {
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="section-title mb-3">{{ isEditing() ? '✏️ Edit Task' : '➕ Assign New Task' }}</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-control" [(ngModel)]="taskObj.title" placeholder="Task title"/>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Assign To</label>
+          <select class="form-select" [(ngModel)]="taskObj.assignedToEmployeeId">
+            <option [ngValue]="0">Select Employee</option>
+            @for (e of employeeList(); track e.employeeId) {
+              <option [ngValue]="e.employeeId">{{ e.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Due Date</label>
+          <input type="date" class="form-control" [(ngModel)]="taskObj.dueDate"/>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Priority</label>
+          <select class="form-select" [(ngModel)]="taskObj.priority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="taskObj.description"
+            placeholder="Task description..."></textarea>
+        </div>
+        <div class="col-md-12 text-end">
+          @if (!isEditing()) {
+            <button class="btn btn-success me-2" (click)="onSave()" [disabled]="isSaving()">
+              {{ isSaving() ? 'Saving...' : 'Assign Task' }}
+            </button>
+          } @else {
+            <button class="btn btn-warning me-2" (click)="onUpdate()" [disabled]="isSaving()">
+              {{ isSaving() ? 'Updating...' : 'Update' }}
+            </button>
+          }
+          <button class="btn btn-secondary" (click)="reset()">Reset</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Task Cards -->
+  @if (isLoading()) {
+    <div class="text-center p-4"><div class="spinner-border text-primary"></div></div>
+  } @else {
+    <div class="task-grid">
+      @for (t of filteredTasks(); track t.taskId) {
+        <div class="task-card" [class.overdue]="t.status !== 'Completed' && isOverdue(t.dueDate)">
+          <div class="task-header">
+            <span class="badge {{ priorityClass(t.priority) }}">{{ t.priority }}</span>
+            <span class="badge {{ statusClass(t.status) }}">{{ t.status }}</span>
+          </div>
+          <div class="task-title">{{ t.title }}</div>
+          @if (t.description) {
+            <div class="task-desc">{{ t.description }}</div>
+          }
+          <div class="task-meta">
+            @if (isHR) {
+              <span><i class="fas fa-user me-1"></i>{{ t.assignedToName }}</span>
+            }
+            <span [class.text-danger]="t.status !== 'Completed' && isOverdue(t.dueDate)">
+              <i class="fas fa-calendar me-1"></i>
+              {{ t.dueDate | date:'dd MMM yyyy' }}
+              @if (t.status !== 'Completed' && isOverdue(t.dueDate)) {
+                <span class="ms-1 text-danger fw-bold">Overdue!</span>
+              }
+            </span>
+          </div>
+          @if (t.completionNote) {
+            <div class="completion-note">
+              <i class="fas fa-check-circle me-1"></i>{{ t.completionNote }}
+            </div>
+          }
+          <div class="task-actions">
+            <button class="btn btn-sm btn-outline-primary"
+              (click)="openStatusUpdate(t)">
+              Update Status
+            </button>
+            @if (isHR) {
+              <button class="btn btn-sm btn-outline-secondary ms-1" (click)="onEdit(t)">Edit</button>
+              <button class="btn btn-sm btn-outline-danger ms-1" (click)="onDelete(t.taskId)">Delete</button>
+            }
+          </div>
+        </div>
+      }
+      @if (filteredTasks().length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-clipboard-check"></i>
+          <p>No tasks found</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Status Update Modal -->
+@if (updatingTask()) {
+  <div class="modal-overlay" (click)="updatingTask.set(null)">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h5 class="mb-3">Update Task Status</h5>
+      <p class="text-muted mb-3">{{ updatingTask()?.title }}</p>
+      <label class="form-label">Status</label>
+      <select class="form-select mb-3" [(ngModel)]="newStatus" [ngModelOptions]="{standalone: true}">
+        <option value="Pending">Pending</option>
+        <option value="InProgress">In Progress</option>
+        <option value="Completed">Completed</option>
+      </select>
+      <label class="form-label">Note (optional)</label>
+      <textarea class="form-control mb-3" rows="2"
+        [(ngModel)]="statusNote" [ngModelOptions]="{standalone: true}"
+        placeholder="Add a completion note..."></textarea>
+      <div class="text-end">
+        <button class="btn btn-secondary me-2" (click)="updatingTask.set(null)">Cancel</button>
+        <button class="btn btn-success" (click)="confirmStatusUpdate()">Save</button>
+      </div>
+    </div>
+  </div>
+}
