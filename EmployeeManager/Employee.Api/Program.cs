@@ -7,22 +7,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddCors(opt =>
+// ✅ CORS FIX (for Vercel frontend)
+builder.Services.AddCors(options =>
 {
-    opt.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+        policy.WithOrigins("https://workforcemanager.vercel.app")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
+// Database
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
-//app.UseHttpsRedirection();
+// ✅ IMPORTANT: Use CORS BEFORE authorization
+app.UseCors("AllowFrontend");
 
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
