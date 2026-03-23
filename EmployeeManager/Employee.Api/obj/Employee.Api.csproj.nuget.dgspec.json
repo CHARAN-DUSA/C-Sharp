@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\chara\\OneDrive\\Desktop\\EmployeeManager\\Employee.Api\\Employee.Api.csproj": {}
+    "C:\\Users\\chara\\OneDrive\\Desktop\\C-Sharp\\EmployeeManager\\Employee.Api\\Employee.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\chara\\OneDrive\\Desktop\\EmployeeManager\\Employee.Api\\Employee.Api.csproj": {
+    "C:\\Users\\chara\\OneDrive\\Desktop\\C-Sharp\\EmployeeManager\\Employee.Api\\Employee.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\chara\\OneDrive\\Desktop\\EmployeeManager\\Employee.Api\\Employee.Api.csproj",
+        "projectUniqueName": "C:\\Users\\chara\\OneDrive\\Desktop\\C-Sharp\\EmployeeManager\\Employee.Api\\Employee.Api.csproj",
         "projectName": "Employee.Api",
-        "projectPath": "C:\\Users\\chara\\OneDrive\\Desktop\\EmployeeManager\\Employee.Api\\Employee.Api.csproj",
+        "projectPath": "C:\\Users\\chara\\OneDrive\\Desktop\\C-Sharp\\EmployeeManager\\Employee.Api\\Employee.Api.csproj",
         "packagesPath": "C:\\Users\\chara\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\chara\\OneDrive\\Desktop\\EmployeeManager\\Employee.Api\\obj\\",
+        "outputPath": "C:\\Users\\chara\\OneDrive\\Desktop\\C-Sharp\\EmployeeManager\\Employee.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
