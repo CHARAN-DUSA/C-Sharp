@@ -64,6 +64,7 @@ export class TaskModel {
   createdDate?: Date;
   completedDate?: Date;
   completionNote?: string = '';
+  hrMessage?: string;
 }
 
 export class AnnouncementModel {
