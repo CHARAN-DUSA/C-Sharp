@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/EmployeeManager/Employee.Frontend/dist/Employee.Frontend/index.html"
+    }
+  ]
+}
