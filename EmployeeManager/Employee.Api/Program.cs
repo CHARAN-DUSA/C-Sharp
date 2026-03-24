@@ -14,10 +14,13 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200") // Angular app URL
+            .WithOrigins(
+                "http://localhost:4200",                 // local
+                "https://workforcemanager.vercel.app"    // deployed frontend ✅
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); // allowed now ✅
+            .AllowCredentials();
     });
 });
 
