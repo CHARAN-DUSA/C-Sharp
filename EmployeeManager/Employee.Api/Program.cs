@@ -8,15 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers
 builder.Services.AddControllers();
 
-// ✅ CORS (STRICT + CORRECT)
+// ✅ CORS (FIXED PROPERLY)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()     // safest for now (fixes CORS fully)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // important
+        policy
+            .WithOrigins("http://localhost:4200") // Angular app URL
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // allowed now ✅
     });
 });
 
@@ -29,10 +30,10 @@ builder.Services.AddDbContext<EmployeeDbContext>(options =>
 
 var app = builder.Build();
 
-// ✅ VERY IMPORTANT ORDER
-app.UseCors("AllowFrontend");   // MUST be before everything
+// ✅ IMPORTANT ORDER
+app.UseCors("AllowFrontend");
 
-//app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
