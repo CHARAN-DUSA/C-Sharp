@@ -22,7 +22,6 @@
 
 <br/>
 
-> 💬 **AI-assisted development conversation:** [View on ChatGPT](https://chatgpt.com/share/69c2a804-cf2c-8008-aca8-fbcc742ded9d)
 
 </div>
 
@@ -30,7 +29,7 @@
 
 ## 📌 About The Project
 
-**EmpAdmin** is a role-based employee management portal that handles the complete employee lifecycle — from onboarding and salary management to leave approvals, daily attendance tracking, task assignments, and company-wide announcements.
+**Workforce** is a role-based employee management portal that handles the complete employee lifecycle — from onboarding and salary management to leave approvals, daily attendance tracking, task assignments, and company-wide announcements.
 
 Built as a hands-on learning project following **Julio Casal's .NET course**, this system demonstrates real-world full-stack patterns:
 
@@ -149,8 +148,8 @@ Node.js 20+   |   .NET 9 SDK   |   Angular CLI 19+   |   Docker (for local DB)
 ### 1. Clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/CHARAN-DUSA/C-Sharp.git
+cd EmployeeManager
 ```
 
 ---
@@ -561,15 +560,6 @@ Use `isLoading()` not `isLoading` — signals must be called as functions in HTM
 
 **GitHub:** [@CHARAN-DUSA](https://github.com/CHARAN-DUSA)
 
-> 💬 **AI-assisted development log:** [View on ChatGPT](https://chatgpt.com/share/69c2a804-cf2c-8008-aca8-fbcc742ded9d)
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
 
 <div align="center">
 
