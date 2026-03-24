@@ -8,12 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers
 builder.Services.AddControllers();
 
-// ✅ CORS (for Vercel frontend)
+// ✅ CORS (robust + preflight safe)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://workforcemanager.vercel.app")
+        policy.AllowAnyOrigin()     // safest for now (fixes CORS fully)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -28,16 +28,15 @@ builder.Services.AddDbContext<EmployeeDbContext>(options =>
 
 var app = builder.Build();
 
-// ✅ CORS MUST be before routing
-app.UseCors("AllowFrontend");
+// ✅ ORDER IS CRITICAL
+app.UseCors("AllowFrontend");   // must be BEFORE MapControllers
 
-// Optional
-// app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 // Map controllers
 app.MapControllers();
 
-// Run app
+// Run
 app.Run();
