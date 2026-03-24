@@ -14,18 +14,18 @@ import { ToastService } from '../../shared/services/toast.service';
 })
 export class Attendance implements OnInit {
   empService = inject(EmployeeService);
-  session    = inject(SessionService);
-  toast      = inject(ToastService);
+  session = inject(SessionService);
+  toast = inject(ToastService);
 
   attendanceList = signal<any[]>([]);
-  todayRecord    = signal<any | null>(null);
-  summary        = signal<any | null>(null);
-  isLoading      = signal(true);
-  isActing       = signal(false);
+  todayRecord = signal<any | null>(null);
+  summary = signal<any | null>(null);
+  isLoading = signal(true);
+  isActing = signal(false);
   now: Date = new Date();
 
   selectedMonth = signal(new Date().getMonth() + 1);
-  selectedYear  = signal(new Date().getFullYear());
+  selectedYear = signal(new Date().getFullYear());
 
   // HR manual entry
   manualObj = {
@@ -39,15 +39,15 @@ export class Attendance implements OnInit {
 
   employeeList = signal<any[]>([]);
 
-  get isHR()   { return this.session.isHR(); }
+  get isHR() { return this.session.isHR(); }
   get userId() { return this.session.getUserId(); }
 
   get months() {
     return [
       { v: 1, l: 'January' }, { v: 2, l: 'February' }, { v: 3, l: 'March' },
-      { v: 4, l: 'April' },   { v: 5, l: 'May' },      { v: 6, l: 'June' },
-      { v: 7, l: 'July' },    { v: 8, l: 'August' },   { v: 9, l: 'September' },
-      { v: 10, l: 'October' },{ v: 11, l: 'November' },{ v: 12, l: 'December' }
+      { v: 4, l: 'April' }, { v: 5, l: 'May' }, { v: 6, l: 'June' },
+      { v: 7, l: 'July' }, { v: 8, l: 'August' }, { v: 9, l: 'September' },
+      { v: 10, l: 'October' }, { v: 11, l: 'November' }, { v: 12, l: 'December' }
     ];
   }
 
@@ -137,13 +137,23 @@ export class Attendance implements OnInit {
   }
 
   onAddManual() {
-    this.empService.addManualAttendance(this.manualObj).subscribe({
+    const data = {
+      ...this.manualObj,
+      checkIn: this.manualObj.checkIn ? this.manualObj.checkIn + ':00' : null,
+      checkOut: this.manualObj.checkOut ? this.manualObj.checkOut + ':00' : null
+    };
+
+    this.empService.addManualAttendance(data).subscribe({
       next: () => {
         this.toast.success('Attendance added.');
         this.loadData();
         this.manualObj = {
-          employeeId: 0, date: new Date().toISOString().split('T')[0],
-          checkIn: '', checkOut: '', status: 'Present', notes: ''
+          employeeId: 0,
+          date: new Date().toISOString().split('T')[0],
+          checkIn: '',
+          checkOut: '',
+          status: 'Present',
+          notes: ''
         };
       },
       error: (err) => this.toast.error(err.error ?? 'Error adding attendance.')
