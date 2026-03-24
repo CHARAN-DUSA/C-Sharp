@@ -98,6 +98,7 @@ export class Tasks implements OnInit {
     this.updatingTask.set(t);
     this.newStatus.set(t.status);
     this.statusNote.set(t.completionNote ?? '');
+    this.hrMessage.set(t.hrMessage ?? '');
   }
 
   confirmStatusUpdate() {
