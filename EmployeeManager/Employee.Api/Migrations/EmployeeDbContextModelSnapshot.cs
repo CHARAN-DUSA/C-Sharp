@@ -17,7 +17,7 @@ namespace Employee.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -298,7 +298,7 @@ namespace Employee.Api.Migrations
                     b.ToTable("salaryTbl");
                 });
 
-            modelBuilder.Entity("Employee.Api.Model.TaskModel", b =>
+            modelBuilder.Entity("TaskModel", b =>
                 {
                     b.Property<int>("TaskId")
                         .ValueGeneratedOnAdd()
@@ -326,6 +326,9 @@ namespace Employee.Api.Migrations
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("HrMessage")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Priority")
                         .IsRequired()
@@ -380,7 +383,7 @@ namespace Employee.Api.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("Employee.Api.Model.TaskModel", b =>
+            modelBuilder.Entity("TaskModel", b =>
                 {
                     b.HasOne("Employee.Api.Model.EmployeeModel", "AssignedTo")
                         .WithMany()

@@ -8,14 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers
 builder.Services.AddControllers();
 
-// ✅ CORS (robust + preflight safe)
+// ✅ CORS (STRICT + CORRECT)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.AllowAnyOrigin()     // safest for now (fixes CORS fully)
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); // important
     });
 });
 
@@ -28,8 +29,8 @@ builder.Services.AddDbContext<EmployeeDbContext>(options =>
 
 var app = builder.Build();
 
-// ✅ ORDER IS CRITICAL
-app.UseCors("AllowFrontend");   // must be BEFORE MapControllers
+// ✅ VERY IMPORTANT ORDER
+app.UseCors("AllowFrontend");   // MUST be before everything
 
 //app.UseHttpsRedirection();
 
