@@ -32,6 +32,7 @@ export class Tasks implements OnInit {
   updatingTask  = signal<TaskModel | null>(null);
   statusNote    = signal('');
   newStatus     = signal('');
+  hrMessage     = signal('');
 
   get isHR() { return this.session.isHR(); }
   get userId() { return this.session.getUserId(); }
@@ -100,17 +101,25 @@ export class Tasks implements OnInit {
   }
 
   confirmStatusUpdate() {
-    const t = this.updatingTask();
-    if (!t) return;
-    this.empService.updateTaskStatus(t.taskId, this.newStatus(), this.statusNote()).subscribe({
-      next: () => {
-        this.toast.success('Task status updated.');
-        this.updatingTask.set(null);
-        this.loadTasks();
-      },
-      error: () => this.toast.error('Error updating status.')
-    });
-  }
+  const t = this.updatingTask();
+  if (!t) return;
+
+  this.empService.updateTaskStatus(
+    t.taskId,
+    {
+      status: this.newStatus(),
+      completionNote: this.statusNote(),
+      hrMessage: this.hrMessage()
+    }
+  ).subscribe({
+    next: () => {
+      this.toast.success('Task status updated.');
+      this.updatingTask.set(null);
+      this.loadTasks();
+    },
+    error: () => this.toast.error('Error updating status.')
+  });
+}
 
   priorityClass(p: string) {
     return { 'High': 'bg-danger', 'Medium': 'bg-warning text-dark', 'Low': 'bg-success' }[p] ?? 'bg-secondary';

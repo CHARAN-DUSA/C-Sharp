@@ -173,6 +173,7 @@ public class EmployeeMasterController : ControllerBase
         existing.DesignationName = employee.DesignationName;
         existing.Address = employee.Address;
         existing.DesignationId = employee.DesignationId;
+        existing.Role = employee.Role;
         existing.ModifiedDate = DateTime.Now; // ✅ auto update modified date
 
         await dbContext.SaveChangesAsync();
