@@ -3,34 +3,41 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
+// ================== SERVICES ==================
+
+// Controllers
 builder.Services.AddControllers();
 
-// ✅ CORS (STRICT + CORRECT)
+// ✅ CORS (for Vercel frontend)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins("https://workforcemanager.vercel.app")
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // important
+              .AllowAnyMethod();
     });
 });
 
-// DB
+// Database
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+// ================== APP ==================
+
 var app = builder.Build();
 
-// ✅ VERY IMPORTANT ORDER
-app.UseCors("AllowFrontend");   // MUST be before everything
+// ✅ CORS MUST be before routing
+app.UseCors("AllowFrontend");
 
-//app.UseHttpsRedirection();
+// Optional
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+// Map controllers
 app.MapControllers();
 
+// Run app
 app.Run();
