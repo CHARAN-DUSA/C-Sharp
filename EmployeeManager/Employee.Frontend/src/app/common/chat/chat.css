@@ -1,0 +1,32 @@
+.chat-body {
+  height: 400px;
+  overflow-y: auto;
+  background: #f5f7fa;
+}
+
+.msg-bubble {
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 60%;
+  display: inline-block;
+}
+
+.me {
+  background: #dcf8c6;
+}
+
+.other {
+  background: #ffffff;
+}
+
+.time {
+  font-size: 10px;
+  text-align: right;
+  color: gray;
+}
+
+.img-preview {
+  width: 120px;
+  margin-top: 5px;
+  border-radius: 5px;
+}

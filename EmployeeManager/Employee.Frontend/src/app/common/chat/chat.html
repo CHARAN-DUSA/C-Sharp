@@ -1,0 +1,95 @@
+<div class="container mt-3">
+  <div class="card shadow">
+
+    <!-- HEADER -->
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      💬 Chat
+
+      <select [(ngModel)]="selectedUserId" class="form-select w-auto">
+        <option [ngValue]="null">All</option>
+        <option *ngFor="let user of users" [value]="user.employeeId">
+          {{ user.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- CHAT BODY -->
+    <div class="card-body chat-body" #chatContainer>
+
+      <div *ngFor="let msg of messages">
+
+        <!-- MY MESSAGE -->
+        <div *ngIf="msg.senderId === userId" class="text-end mb-2">
+          <div class="msg-bubble me">
+            <div class="small fw-bold">You</div>
+
+            <div *ngIf="msg.messageText">{{ msg.messageText }}</div>
+
+            <!-- FILE -->
+            <a *ngIf="msg.fileUrl" [href]="msg.fileUrl" target="_blank">
+              📎 Download
+            </a>
+
+            <!-- IMAGE (FIXED) -->
+            <img *ngIf="msg.fileUrl && isImage(msg.fileUrl)"
+                 [src]="msg.fileUrl"
+                 class="img-preview" />
+
+            <div class="time">{{ msg.createdDate | date:'shortTime' }}</div>
+          </div>
+        </div>
+
+        <!-- OTHER MESSAGE -->
+        <div *ngIf="msg.senderId !== userId" class="text-start mb-2">
+          <div class="msg-bubble other">
+            <div class="small fw-bold text-primary">{{ msg.senderName }}</div>
+
+            <div *ngIf="msg.messageText">{{ msg.messageText }}</div>
+
+            <a *ngIf="msg.fileUrl" [href]="msg.fileUrl" target="_blank">
+              📎 Download
+            </a>
+
+            <!-- IMAGE (FIXED) -->
+            <img *ngIf="msg.fileUrl && isImage(msg.fileUrl)"
+                 [src]="msg.fileUrl"
+                 class="img-preview" />
+
+            <div class="time">{{ msg.createdDate | date:'shortTime' }}</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TYPING -->
+      <div *ngIf="typingUser" class="text-muted small mt-2">
+        ✍️ {{ typingUser }}
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="card-footer">
+
+      <div class="d-flex gap-2 mb-2">
+        <input type="file" (change)="onFileSelected($event)" class="form-control" />
+      </div>
+
+      <div class="d-flex gap-2">
+        <input
+          [(ngModel)]="messageText"
+          class="form-control"
+          placeholder="Type message..."
+          (input)="sendTyping()"
+          (keyup.enter)="sendMessage()"
+        />
+
+        <button class="btn btn-primary px-4" (click)="sendMessage()">
+          Send
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

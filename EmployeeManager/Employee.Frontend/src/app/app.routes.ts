@@ -15,6 +15,7 @@ import { EmployeeList } from './hrAdmin/employee-list/employee-list';
 import { Salary } from './hrAdmin/salary/salary';
 import { Header } from './layout/header/header';
 import { authGuard, hrGuard } from './shared/guards/auth.guard';
+import { ChatComponent } from './common/chat/chat';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -37,6 +38,7 @@ export const routes: Routes = [
       { path: 'tasks',            component: Tasks },
       { path: 'leaves',           component: Leaves },
       { path: 'attendance',       component: Attendance },
+      { path : 'chat',            component: ChatComponent},
       // Employee only
       { path: 'my-salary',        component: SalarySlip },
       { path: 'my-announcements', component: MyAnnouncements },
