@@ -9,19 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers
 builder.Services.AddControllers();
 
-// ✅ CORS (FIXED PROPERLY)
+// ✅ CORS (FINAL FIX - supports Vercel dynamic URLs)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:4200",                 // local
-                "https://workforcemanager.vercel.app"    // deployed frontend ✅
+            .SetIsOriginAllowed(origin =>
+                origin.StartsWith("http://localhost") || 
+                origin.Contains("vercel.app")          // ✅ allows all Vercel deployments
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowCredentials();                      // ✅ needed for SignalR
     });
 });
 
@@ -29,27 +29,31 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Background service
 builder.Services.AddHostedService<MessageCleanupService>();
 
+// SignalR
 builder.Services.AddSignalR();
 
 // ================== APP ==================
 
 var app = builder.Build();
 
-// ✅ IMPORTANT ORDER
+// ✅ ORDER IS VERY IMPORTANT
 app.UseCors("AllowFrontend");
 
-// app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // optional (Render handles HTTPS)
 
 app.UseAuthorization();
+
+// Static files (if needed)
+app.UseStaticFiles();
 
 // Map controllers
 app.MapControllers();
 
-app.UseStaticFiles();
-
+// SignalR Hub
 app.MapHub<ChatHub>("/chatHub");
 
-// Run
+// Run app
 app.Run();
