@@ -168,10 +168,14 @@ export class Attendance implements OnInit {
   }
 
   formatTime(t: any) {
-    if (!t) return '—';
-    const parts = t.split(':');
-    const h = parseInt(parts[0]);
-    const m = parts[1];
-    return `${h % 12 || 12}:${m} ${h < 12 ? 'AM' : 'PM'}`;
-  }
+  if (!t) return '—';
+
+  // convert TimeSpan (HH:mm:ss) → readable time
+  const [hours, minutes] = t.split(':').map(Number);
+
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const h = hours % 12 || 12;
+
+  return `${h}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+}
 }
