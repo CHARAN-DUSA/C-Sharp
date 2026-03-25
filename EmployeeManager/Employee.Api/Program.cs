@@ -1,5 +1,6 @@
 using Employee.Api.Model;
 using Microsoft.EntityFrameworkCore;
+using Employee.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddHostedService<MessageCleanupService>();
+
+builder.Services.AddSignalR();
 
 // ================== APP ==================
 
@@ -42,6 +46,10 @@ app.UseAuthorization();
 
 // Map controllers
 app.MapControllers();
+
+app.UseStaticFiles();
+
+app.MapHub<ChatHub>("/chatHub");
 
 // Run
 app.Run();

@@ -15,6 +15,7 @@ public class EmployeeDbContext : DbContext
     public DbSet<AnnouncementModel> Announcements { get; set; }
     public DbSet<LeaveModel> Leaves { get; set; }
     public DbSet<AttendanceModel> Attendances { get; set; }
+    public DbSet<MessageModel> Messages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

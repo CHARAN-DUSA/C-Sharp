@@ -17,7 +17,7 @@ namespace Employee.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -250,6 +250,40 @@ namespace Employee.Api.Migrations
                     b.ToTable("leaveTbl");
                 });
 
+            modelBuilder.Entity("Employee.Api.Model.MessageModel", b =>
+                {
+                    b.Property<int>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageId"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("messageTbl");
+                });
+
             modelBuilder.Entity("Employee.Api.Model.SalaryModel", b =>
                 {
                     b.Property<int>("SalaryId")
@@ -370,6 +404,23 @@ namespace Employee.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("Employee.Api.Model.MessageModel", b =>
+                {
+                    b.HasOne("Employee.Api.Model.EmployeeModel", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId");
+
+                    b.HasOne("Employee.Api.Model.EmployeeModel", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Employee.Api.Model.SalaryModel", b =>
