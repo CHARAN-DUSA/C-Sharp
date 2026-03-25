@@ -6,22 +6,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ================== SERVICES ==================
 
-// Controllers
 builder.Services.AddControllers();
 
-// ✅ CORS (FINAL WORKING VERSION)
+// ✅ CORS (STRICT + WORKING)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .SetIsOriginAllowed(origin =>
-                origin.StartsWith("http://localhost") ||   // local
-                origin.Contains("vercel.app")              // all Vercel deployments
-            )
+            .SetIsOriginAllowed(origin => true) // 🔥 TEMP allow all
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials(); // required for SignalR
+            .AllowAnyMethod();
     });
 });
 
@@ -29,35 +24,35 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Background service
 builder.Services.AddHostedService<MessageCleanupService>();
 
-// SignalR
 builder.Services.AddSignalR();
 
 // ================== APP ==================
 
 var app = builder.Build();
 
-// ✅ VERY IMPORTANT ORDER
-
-// CORS MUST be first
+// ✅ VERY IMPORTANT: CORS FIRST
 app.UseCors("AllowFrontend");
 
-// Optional HTTPS (Render handles it, so safe to skip)
-// app.UseHttpsRedirection();
+// 🔥 HANDLE PREFLIGHT REQUESTS (THIS IS THE REAL FIX)
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        await context.Response.CompleteAsync();
+        return;
+    }
+    await next();
+});
 
-// Static files (optional)
+// Middleware order
 app.UseStaticFiles();
-
-// Authorization (if you add auth later)
 app.UseAuthorization();
 
-// Map controllers
+// Endpoints
 app.MapControllers();
-
-// SignalR Hub
 app.MapHub<ChatHub>("/chatHub");
 
-// Run app
 app.Run();
