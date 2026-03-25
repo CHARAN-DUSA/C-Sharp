@@ -9,19 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers
 builder.Services.AddControllers();
 
-// ✅ CORS (FINAL FIX - supports Vercel dynamic URLs)
+// ✅ CORS (FINAL WORKING VERSION)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
             .SetIsOriginAllowed(origin =>
-                origin.StartsWith("http://localhost") || 
-                origin.Contains("vercel.app")          // ✅ allows all Vercel deployments
+                origin.StartsWith("http://localhost") ||   // local
+                origin.Contains("vercel.app")              // all Vercel deployments
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();                      // ✅ needed for SignalR
+            .AllowCredentials(); // required for SignalR
     });
 });
 
@@ -39,15 +39,19 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// ✅ ORDER IS VERY IMPORTANT
+// ✅ VERY IMPORTANT ORDER
+
+// CORS MUST be first
 app.UseCors("AllowFrontend");
 
-// app.UseHttpsRedirection(); // optional (Render handles HTTPS)
+// Optional HTTPS (Render handles it, so safe to skip)
+// app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
-// Static files (if needed)
+// Static files (optional)
 app.UseStaticFiles();
+
+// Authorization (if you add auth later)
+app.UseAuthorization();
 
 // Map controllers
 app.MapControllers();
