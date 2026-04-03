@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:4200",                 // local
-                "https://workforcemanager.vercel.app"    // deployed frontend ✅
+                "https://work-eight-jet.vercel.app"    // deployed frontend ✅
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
