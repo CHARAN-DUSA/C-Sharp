@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+
+  # ─────────────────────────────────────────────
+  # .NET 8 Web API Container
+  # Connects to Azure SQL in the cloud
+  # ─────────────────────────────────────────────
+  dotnet-api:
+    build:
+      context: ./Employee.Api
+    container_name: employee-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=${AZURE_SQL_CONNECTION}
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    restart: always
+
+  # ─────────────────────────────────────────────
+  # Angular Frontend Container
+  # Served via Nginx on port 4200
+  # ─────────────────────────────────────────────
+  angular-app:
+    build:
+      context: ./Employee.Frontend
+    container_name: employee-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - dotnet-api
+    restart: always

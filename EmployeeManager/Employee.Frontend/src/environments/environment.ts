@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://employee-api-fuis.onrender.com/api'
+  apiUrl: 'https://localhost:7033/api'
 };
