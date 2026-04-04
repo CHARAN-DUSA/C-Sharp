@@ -317,7 +317,7 @@ npm install -g @angular/cli@17
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/medibook.git
+git clone https://github.com/CHARAN-DUSA/C-Sharp.git
 cd medibook
 ```
 
