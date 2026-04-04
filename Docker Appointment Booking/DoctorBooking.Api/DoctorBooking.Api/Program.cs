@@ -121,14 +121,18 @@ builder.Services.AddSignalR();
 // ── CORS (FIXED) ────────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200", "https://localhost:4200", "http://127.0.0.1:4200")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        });
+    options.AddPolicy("AllowVercel", policy =>
+    {
+        policy
+            .WithOrigins(
+                "https://medibook-2ollzo2o4-charans-projects-033f5765.vercel.app",
+                "https://*.vercel.app",   // covers all preview deployments
+                "http://localhost:4200"   // for local dev
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // only if you use cookies/auth headers
+    });
 });
 
 // ── CONTROLLERS + SWAGGER ───────────────────────────────────
