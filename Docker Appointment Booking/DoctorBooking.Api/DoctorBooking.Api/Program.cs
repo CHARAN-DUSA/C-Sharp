@@ -176,12 +176,15 @@ builder.Services.AddSwaggerGen(c =>
 
 var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
 
-FirebaseApp.Create(new AppOptions()
+if (!string.IsNullOrEmpty(firebaseJson) && FirebaseApp.DefaultInstance == null)
 {
-    Credential = GoogleCredential.FromJson(firebaseJson)
-});
-var app = builder.Build();
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromJson(firebaseJson)
+    });
+}
 
+var app = builder.Build();
 // ── PIPELINE (FIXED ORDER) ──────────────────────────────────
 
 // 1. Rate limiting + exception handling
