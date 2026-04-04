@@ -206,7 +206,7 @@ if (app.Environment.IsDevelopment())
 // app.UseHttpsRedirection();
 
 // 3. CORS MUST BE BEFORE AUTH
-app.UseCors("AllowAngular");
+app.UseCors("AllowVercel");
 
 // 4. Authentication
 app.UseAuthentication();
