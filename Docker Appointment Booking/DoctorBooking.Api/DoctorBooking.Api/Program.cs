@@ -126,6 +126,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "https://medibook-2ollzo2o4-charans-projects-033f5765.vercel.app",
+                "https://medibook-five-rosy.vercel.app/",
                 "https://*.vercel.app",   // covers all preview deployments
                 "http://localhost:4200"   // for local dev
             )
