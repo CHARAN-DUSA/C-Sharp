@@ -103,24 +103,26 @@ export class LoginComponent
   }
 
   // ── Google OAuth ──────────────────────────────────────────
-  signInWithGoogle()
-  {
-    if (this.googleInitialized) return;
-    this.googleInitialized = true;
-    this.error.set('');
+  signInWithGoogle() {
+  if (this.googleInitialized) return;
+  this.googleInitialized = true;
+  this.error.set('');
 
-    const state = Math.random().toString(36).substring(2);
-    localStorage.setItem('oauth_state', state);
+  const state = Math.random().toString(36).substring(2);
+  localStorage.setItem('oauth_state', state);
 
-    window.location.href =
-      `https://accounts.google.com/o/oauth2/v2/auth`
-      + `?client_id=${environment.googleClientId}`
-      + `&redirect_uri=${encodeURIComponent('http://localhost:4200/auth/callback')}`
-      + `&response_type=token%20id_token`
-      + `&scope=${encodeURIComponent('openid email profile')}`
-      + `&state=${state}`
-      + `&nonce=${Math.random().toString(36).substring(2)}`;
-  }
+  // ✅ Dynamic redirect URI — works on both localhost and Vercel
+  const redirectUri = `${window.location.origin}/auth/callback`;
+
+  window.location.href =
+    `https://accounts.google.com/o/oauth2/v2/auth`
+    + `?client_id=${environment.googleClientId}`
+    + `&redirect_uri=${encodeURIComponent(redirectUri)}`
+    + `&response_type=token%20id_token`
+    + `&scope=${encodeURIComponent('openid email profile')}`
+    + `&state=${state}`
+    + `&nonce=${Math.random().toString(36).substring(2)}`;
+}
 
   // ── 2FA ───────────────────────────────────────────────────
   verifyTwoFa()
