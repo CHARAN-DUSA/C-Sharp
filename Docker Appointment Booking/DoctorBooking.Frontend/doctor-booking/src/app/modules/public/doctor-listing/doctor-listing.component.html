@@ -1,0 +1,204 @@
+<app-navbar></app-navbar>
+<div style="padding-top: var(--mb-navbar-height); display: flex">
+  <!-- Sidebar only shown when logged in -->
+  <app-sidebar *ngIf="isLoggedIn()"></app-sidebar>
+
+  <!-- Main content — margin adjusts based on sidebar -->
+  <main
+    [class.main-content]="isLoggedIn()"
+    [style.padding]="isLoggedIn() ? '' : '2rem'"
+    style="flex: 1"
+  >
+    <div class="page-header">
+      <h2><i class="bi bi-search text-primary me-2"></i>Find Doctors</h2>
+      <p>Browse and book from our verified specialists</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: 12px">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label fw-semibold small text-muted text-uppercase"
+            >Search</label
+          >
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="search"
+              placeholder="Doctor name or specialty..."
+              (keyup.enter)="load()"
+            />
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold small text-muted text-uppercase"
+            >Specialty</label
+          >
+          <select class="form-select" [(ngModel)]="specialty" (change)="load()">
+            <option value="">All Specialties</option>
+            <option *ngFor="let s of specialties()" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button
+            class="btn btn-primary flex-fill fw-semibold"
+            (click)="load()"
+          >
+            <i class="bi bi-funnel me-1"></i>Search
+          </button>
+          <button
+            class="btn btn-outline-secondary"
+            (click)="clearFilters()"
+            title="Clear filters"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results count -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0">
+        <span *ngIf="!loading()">
+          {{ doctors().length }} doctor{{
+            doctors().length !== 1 ? "s" : ""
+          }}
+          found
+        </span>
+        <span *ngIf="loading()" class="text-muted">Searching...</span>
+      </h5>
+      <span class="text-muted small">Sorted by rating</span>
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="loading()" class="text-center py-5">
+      <div
+        class="spinner-border text-primary"
+        style="width: 3rem; height: 3rem"
+      ></div>
+      <p class="text-muted mt-3">Loading doctors...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading() && doctors().length === 0" class="text-center py-5">
+      <i class="bi bi-person-x text-muted" style="font-size: 3.5rem"></i>
+      <h5 class="mt-3 text-muted">No doctors found</h5>
+      <p class="text-muted small">
+        Try different search terms or clear the filters
+      </p>
+      <button class="btn btn-outline-primary mt-2" (click)="clearFilters()">
+        <i class="bi bi-arrow-counterclockwise me-2"></i>Show All Doctors
+      </button>
+    </div>
+
+    <!-- Doctor Grid -->
+    <div *ngIf="!loading() && doctors().length > 0" class="row g-3">
+      <div class="col-md-6 col-lg-4" *ngFor="let doc of doctors()">
+        <div class="card doctor-card h-100 border-0 shadow-sm">
+          <div class="card-body p-3">
+            <!-- Header -->
+            <div class="d-flex align-items-start gap-3">
+              <div
+                style="
+                  width: 68px;
+                  height: 68px;
+                  border-radius: 50%;
+                  background: #eff6ff;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  flex-shrink: 0;
+                "
+              >
+                <i
+                  class="bi bi-person-circle text-primary"
+                  style="font-size: 2.4rem"
+                ></i>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <h6 class="fw-bold mb-1 text-truncate">
+                  Dr. {{ doc.fullName }}
+                </h6>
+                <span class="specialty-badge">{{ doc.specialty }}</span>
+                <div class="d-flex align-items-center gap-1 mt-1">
+                  <i
+                    *ngFor="let f of stars(doc.rating)"
+                    [class]="
+                      'bi bi-star' + (f ? '-fill' : '') + ' rating-stars'
+                    "
+                    style="font-size: 0.8rem"
+                  ></i>
+                  <small class="text-muted ms-1">
+                    {{
+                      doc.rating ? (doc.rating | number: "1.1-1") : "0.0"
+                    }}
+                    ({{ doc.totalReviews }})
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-2" />
+
+            <!-- Stats -->
+            <div class="row g-2 text-center" style="font-size: 0.82rem">
+              <div class="col-4">
+                <div class="fw-bold text-primary">
+                  {{ doc.experienceYears }}yr
+                </div>
+                <div class="text-muted">Experience</div>
+              </div>
+              <div class="col-4">
+                <div class="fw-bold text-primary">
+                  ₹{{ doc.consultationFee }}
+                </div>
+                <div class="text-muted">Fee</div>
+              </div>
+              <div class="col-4">
+                <div
+                  class="fw-bold"
+                  [class]="doc.isAvailable ? 'text-success' : 'text-danger'"
+                >
+                  {{ doc.isAvailable ? "Available" : "Busy" }}
+                </div>
+                <div class="text-muted">Status</div>
+              </div>
+            </div>
+
+            <!-- Languages & Clinic -->
+            <div class="mt-2 small text-muted" *ngIf="doc.clinicName">
+              <i class="bi bi-hospital me-1"></i>{{ doc.clinicName }}
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-2 mt-3">
+              <a
+                [routerLink]="['/doctors', doc.id]"
+                class="btn btn-outline-primary btn-sm flex-fill fw-semibold"
+              >
+                <i class="bi bi-eye me-1"></i>Profile
+              </a>
+              <a
+                *ngIf="isLoggedIn()"
+                [routerLink]="['/patient/book', doc.id]"
+                class="btn btn-primary btn-sm flex-fill fw-semibold"
+              >
+                <i class="bi bi-calendar-plus me-1"></i>Book
+              </a>
+              <a
+                *ngIf="!isLoggedIn()"
+                routerLink="/auth/login"
+                class="btn btn-primary btn-sm flex-fill fw-semibold"
+              >
+                <i class="bi bi-box-arrow-in-right me-1"></i>Login to Book
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

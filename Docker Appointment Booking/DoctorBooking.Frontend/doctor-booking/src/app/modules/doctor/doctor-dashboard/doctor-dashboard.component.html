@@ -1,0 +1,26 @@
+<app-navbar></app-navbar>
+<div style="padding-top:var(--mb-navbar-height);display:flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+    <div class="page-header"><h2><i class="bi bi-grid-1x2 text-primary me-2"></i>Welcome, Dr. {{ auth.currentUser()?.fullName }}</h2><p>Today's overview</p></div>
+    <div class="row g-3 mb-4" *ngIf="stats() as s">
+      <div class="col-sm-6 col-lg-3"><div class="stat-card bg-patients"><div class="stat-icon"><i class="bi bi-people"></i></div><div class="stat-value">{{ s.totalPatients }}</div><div class="stat-label">Total Patients</div></div></div>
+      <div class="col-sm-6 col-lg-3"><div class="stat-card bg-doctors"><div class="stat-icon"><i class="bi bi-calendar2-check"></i></div><div class="stat-value">{{ today().length }}</div><div class="stat-label">Today's Appts</div></div></div>
+      <div class="col-sm-6 col-lg-3"><div class="stat-card bg-appts"><div class="stat-icon"><i class="bi bi-star-fill"></i></div><div class="stat-value">{{ s.rating?.toFixed(1) ?? '—' }}</div><div class="stat-label">My Rating</div></div></div>
+      <div class="col-sm-6 col-lg-3"><div class="stat-card bg-revenue"><div class="stat-icon"><i class="bi bi-chat-dots"></i></div><div class="stat-value"><a routerLink="/chat" class="text-white text-decoration-none">Chat</a></div><div class="stat-label">Messages</div></div></div>
+    </div>
+    <div class="card border-0 shadow-sm" style="border-radius:12px">
+      <div class="card-header d-flex justify-content-between align-items-center"><span class="fw-bold"><i class="bi bi-calendar-day me-2 text-primary"></i>Today's Schedule</span><a routerLink="/doctor/appointments" class="btn btn-outline-primary btn-sm fw-semibold">View All</a></div>
+      <div class="card-body p-0">
+        <div *ngIf="loading()" class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+        <div *ngIf="!loading() && today().length === 0" class="text-center py-5 text-muted"><i class="bi bi-calendar-x" style="font-size:2.5rem"></i><p class="mt-2">No appointments today</p></div>
+        <div *ngFor="let a of today(); let last = last" class="d-flex align-items-center gap-3 p-3" [class.border-bottom]="!last">
+          <div style="width:44px;height:44px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="bi bi-person-circle text-primary" style="font-size:1.7rem"></i></div>
+          <div class="flex-grow-1"><div class="fw-semibold">{{ a.patientName }}</div><div class="text-muted small">{{ a.timeSlot }} · {{ a.reason }}</div></div>
+          <span class="badge rounded-pill" [class]="a.statusText==='Confirmed' ? 'bg-primary' : a.statusText==='Completed' ? 'bg-success' : 'bg-warning text-dark'">{{ a.statusText }}</span>
+          <button *ngIf="a.statusText==='Confirmed'" class="btn btn-outline-success btn-sm fw-semibold" [disabled]="completing() === a.id" (click)="complete(a)"><span *ngIf="completing() === a.id" class="spinner-border spinner-border-sm me-1"></span>Complete</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

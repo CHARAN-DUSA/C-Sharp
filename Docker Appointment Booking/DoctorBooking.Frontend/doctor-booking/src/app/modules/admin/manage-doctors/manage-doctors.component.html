@@ -1,0 +1,23 @@
+<app-navbar></app-navbar>
+<div style="padding-top:var(--mb-navbar-height);display:flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+    <div class="page-header"><h2><i class="bi bi-person-badge text-primary me-2"></i>Manage Doctors</h2><p>Verify and manage doctor profiles</p></div>
+    <div *ngIf="loading()" class="text-center py-5"><div class="spinner-border text-primary" style="width:3rem;height:3rem"></div></div>
+    <div class="card border-0 shadow-sm" style="border-radius:12px" *ngIf="!loading()">
+      <div class="table-responsive"><table class="table table-hover mb-0">
+        <thead class="table-light"><tr><th>Doctor</th><th>Specialty</th><th>Fee</th><th>Rating</th><th>Verified</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let d of doctors()">
+            <td><div class="fw-semibold">Dr. {{ d.user?.firstName }} {{ d.user?.lastName }}</div><div class="text-muted small">{{ d.user?.email }}</div></td>
+            <td><span class="specialty-badge">{{ d.specialty }}</span></td>
+            <td>₹{{ d.consultationFee }}</td>
+            <td><i class="bi bi-star-fill text-warning me-1" style="font-size:.8rem"></i>{{ d.rating?.toFixed(1) ?? '—' }}</td>
+            <td><span class="badge rounded-pill" [class]="d.isVerified ? 'bg-success' : 'bg-warning text-dark'">{{ d.isVerified ? 'Verified' : 'Pending' }}</span></td>
+            <td><button *ngIf="!d.isVerified" class="btn btn-success btn-sm fw-semibold" (click)="verify(d.id)"><i class="bi bi-shield-check me-1"></i>Verify</button></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,28 @@
+<app-navbar></app-navbar>
+<div style="padding-top:var(--mb-navbar-height);display:flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+    <div class="page-header"><h2><i class="bi bi-calendar2-check text-primary me-2"></i>My Appointments</h2><p>Your upcoming confirmed appointments</p></div>
+    <div *ngIf="error()" class="alert alert-danger" style="border-radius:10px"><i class="bi bi-exclamation-triangle me-2"></i>{{ error() }}</div>
+    <div *ngIf="loading()" class="text-center py-5"><div class="spinner-border text-primary" style="width:3rem;height:3rem"></div></div>
+    <ng-container *ngIf="!loading()">
+      <div *ngIf="appointments().length === 0" class="text-center py-5"><i class="bi bi-calendar-x text-muted" style="font-size:3.5rem"></i><h5 class="mt-3 text-muted">No upcoming appointments</h5><a routerLink="/doctors" class="btn btn-primary mt-2 px-4 fw-semibold"><i class="bi bi-search me-2"></i>Find a Doctor</a></div>
+      <div class="row g-3">
+        <div class="col-12" *ngFor="let appt of appointments()">
+          <div class="card border-0 shadow-sm appt-card p-0" [ngClass]="statusClass(appt.statusText)">
+            <div class="card-body p-3">
+              <div class="row align-items-center g-3">
+                <div class="col-auto"><div style="width:50px;height:50px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center"><i class="bi bi-person-circle text-primary" style="font-size:1.9rem"></i></div></div>
+                <div class="col-md-3"><div class="fw-bold">Dr. {{ appt.doctorName }}</div><span class="specialty-badge">{{ appt.doctorSpecialty }}</span></div>
+                <div class="col-md-3"><div class="d-flex align-items-center gap-2 small"><i class="bi bi-calendar3 text-primary"></i>{{ appt.appointmentDate | date:'EEE, MMM dd yyyy' }}</div><div class="d-flex align-items-center gap-2 small mt-1"><i class="bi bi-clock text-primary"></i>{{ appt.timeSlot }}</div></div>
+                <div class="col-md-2 text-center"><span class="badge rounded-pill px-3 py-2" [class]="appt.statusText==='Confirmed' ? 'bg-primary' : appt.statusText==='Completed' ? 'bg-success' : appt.statusText==='Cancelled' ? 'bg-danger' : 'bg-warning text-dark'">{{ appt.statusText }}</span><div class="text-muted small mt-1">₹{{ appt.consultationFee }}</div></div>
+                <div class="col-md-2 text-end"><button class="btn btn-outline-danger btn-sm fw-semibold" [disabled]="cancelling() === appt.id" (click)="cancel(appt)"><span *ngIf="cancelling() === appt.id" class="spinner-border spinner-border-sm me-1"></span>Cancel</button></div>
+              </div>
+              <div *ngIf="appt.reason" class="mt-2 pt-2 border-top"><small class="text-muted"><strong>Reason:</strong> {{ appt.reason }}</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </main>
+</div>

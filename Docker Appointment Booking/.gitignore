@@ -1,0 +1,26 @@
+# Salesforce
+.sfdx/
+
+# Visual Studio
+.vs/
+
+# .NET
+bin/
+obj/
+
+# Angular / Node
+node_modules/
+.angular/
+dist/
+coverage/
+
+# Environment
+.env
+firebase-service-account.json
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,28 @@
+<app-navbar></app-navbar>
+<div style="padding-top:var(--mb-navbar-height);display:flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+    <div class="page-header"><h2><i class="bi bi-calendar2-check text-primary me-2"></i>My Appointments</h2><p>All patient appointments</p></div>
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+      <button *ngFor="let f of filters" class="btn btn-sm fw-semibold" [class]="activeFilter() === f.value ? 'btn-primary' : 'btn-outline-secondary'" (click)="filterBy(f.value)">{{ f.label }}</button>
+    </div>
+    <div *ngIf="loading()" class="text-center py-5"><div class="spinner-border text-primary" style="width:3rem;height:3rem"></div></div>
+    <div class="card border-0 shadow-sm" style="border-radius:12px" *ngIf="!loading()">
+      <div class="table-responsive"><table class="table table-hover mb-0">
+        <thead class="table-light"><tr><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Fee</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let a of appointments()">
+            <td class="fw-semibold">{{ a.patientName }}</td>
+            <td>{{ a.appointmentDate | date:'MMM dd, yyyy' }}</td>
+            <td>{{ a.timeSlot }}</td>
+            <td class="text-truncate" style="max-width:160px">{{ a.reason }}</td>
+            <td><span class="badge rounded-pill" [class]="a.statusText==='Confirmed' ? 'bg-primary' : a.statusText==='Completed' ? 'bg-success' : a.statusText==='Cancelled' ? 'bg-danger' : 'bg-warning text-dark'">{{ a.statusText }}</span></td>
+            <td>₹{{ a.consultationFee }}</td>
+            <td><button *ngIf="a.statusText==='Confirmed'" class="btn btn-success btn-sm fw-semibold" (click)="complete(a)"><i class="bi bi-check-circle me-1"></i>Complete</button></td>
+          </tr>
+          <tr *ngIf="appointments().length === 0"><td colspan="7" class="text-center text-muted py-4">No appointments found.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>

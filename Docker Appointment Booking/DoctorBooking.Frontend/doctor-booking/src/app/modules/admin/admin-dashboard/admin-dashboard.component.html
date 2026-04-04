@@ -1,0 +1,110 @@
+<app-navbar></app-navbar>
+<div style="padding-top: var(--mb-navbar-height); display: flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+    <div class="page-header">
+      <h2>
+        <i class="bi bi-speedometer2 text-primary me-2"></i>Admin Dashboard
+      </h2>
+      <p>System overview</p>
+    </div>
+    <div *ngIf="loading()" class="text-center py-5">
+      <div
+        class="spinner-border text-primary"
+        style="width: 3rem; height: 3rem"
+      ></div>
+    </div>
+    <ng-container *ngIf="!loading() && stats() as s">
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+          <div class="stat-card bg-patients">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div class="stat-value">{{ s.totalPatients }}</div>
+            <div class="stat-label">Total Patients</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="stat-card bg-doctors">
+            <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
+            <div class="stat-value">{{ s.totalDoctors }}</div>
+            <div class="stat-label">Total Doctors</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="stat-card bg-appts">
+            <div class="stat-icon"><i class="bi bi-calendar2-check"></i></div>
+            <div class="stat-value">{{ s.totalAppointments }}</div>
+            <div class="stat-label">Total Appointments</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="stat-card bg-revenue">
+            <div class="stat-icon"><i class="bi bi-currency-rupee"></i></div>
+            <div class="stat-value">
+              ₹{{ s.totalRevenue | number: "1.0-0" }}
+            </div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <a
+            routerLink="/admin/users"
+            class="card border-0 shadow-sm p-4 text-decoration-none text-dark h-100"
+            style="
+              border-radius: 14px;
+              display: block;
+              transition: transform 0.2s;
+            "
+            (mouseenter)="
+              $any($event.currentTarget).style.transform = 'translateY(-3px)'
+            "
+            (mouseleave)="$any($event.currentTarget).style.transform = ''"
+            ><i class="bi bi-people fs-1 text-primary mb-2 d-block"></i>
+            <h6 class="fw-bold mb-1">Manage Users</h6>
+            <p class="text-muted small mb-0">
+              View and control user accounts
+            </p></a
+          >
+        </div>
+        <div class="col-md-4">
+          <a
+            routerLink="/admin/doctors"
+            class="card border-0 shadow-sm p-4 text-decoration-none text-dark h-100"
+            style="
+              border-radius: 14px;
+              display: block;
+              transition: transform 0.2s;
+            "
+            (mouseenter)="
+              $any($event.currentTarget).style.transform = 'translateY(-3px)'
+            "
+            (mouseleave)="$any($event.currentTarget).style.transform = ''"
+            ><i class="bi bi-person-badge fs-1 text-success mb-2 d-block"></i>
+            <h6 class="fw-bold mb-1">Manage Doctors</h6>
+            <p class="text-muted small mb-0">Verify and manage doctors</p></a
+          >
+        </div>
+        <div class="col-md-4">
+          <a
+            routerLink="/admin/appointments"
+            class="card border-0 shadow-sm p-4 text-decoration-none text-dark h-100"
+            style="
+              border-radius: 14px;
+              display: block;
+              transition: transform 0.2s;
+            "
+            (mouseenter)="
+              $any($event.currentTarget).style.transform = 'translateY(-3px)'
+            "
+            (mouseleave)="$any($event.currentTarget).style.transform = ''"
+            ><i class="bi bi-calendar2 fs-1 text-warning mb-2 d-block"></i>
+            <h6 class="fw-bold mb-1">All Appointments</h6>
+            <p class="text-muted small mb-0">View every booking</p></a
+          >
+        </div>
+      </div>
+    </ng-container>
+  </main>
+</div>

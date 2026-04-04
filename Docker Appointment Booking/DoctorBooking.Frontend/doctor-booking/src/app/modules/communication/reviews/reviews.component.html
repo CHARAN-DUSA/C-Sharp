@@ -1,0 +1,25 @@
+<app-navbar></app-navbar>
+<div style="padding-top:var(--mb-navbar-height);display:flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+    <div class="page-header"><h2><i class="bi bi-star text-warning me-2"></i>Reviews</h2><p>Rate your completed appointments</p></div>
+    <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius:16px">
+      <h6 class="fw-bold mb-3"><i class="bi bi-pencil me-2 text-primary"></i>Write a Review</h6>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="mb-3"><label class="form-label fw-semibold">Your Rating</label><div class="d-flex gap-1"><button type="button" *ngFor="let s of stars" class="btn p-0 border-0" (click)="setRating(s)"><i [class]="'bi fs-3 ' + (getRating() >= s ? 'bi-star-fill text-warning' : 'bi-star text-muted')"></i></button></div></div>
+        <div class="mb-3"><label class="form-label fw-semibold">Comment</label><textarea class="form-control" formControlName="comment" rows="3" placeholder="Share your experience..." [class.is-invalid]="form.get('comment')?.invalid && form.get('comment')?.touched"></textarea><div class="invalid-feedback">Min 10 characters.</div></div>
+        <div *ngIf="saved()" class="alert alert-success py-2 mt-2" style="border-radius:8px"><i class="bi bi-check-circle me-2"></i>Review submitted!</div>
+        <button type="submit" class="btn btn-warning mt-2 fw-semibold px-4" [disabled]="form.invalid || saving()"><span *ngIf="saving()" class="spinner-border spinner-border-sm me-2"></span>Submit Review</button>
+      </form>
+    </div>
+    <div class="card border-0 shadow-sm p-4" style="border-radius:16px">
+      <h6 class="fw-bold mb-3"><i class="bi bi-star-fill text-warning me-2"></i>My Past Reviews</h6>
+      <div *ngIf="reviews().length === 0" class="text-center text-muted py-3"><i class="bi bi-star" style="font-size:2.5rem"></i><p class="mt-2 small">No reviews yet.</p></div>
+      <div *ngFor="let r of reviews(); let last = last" class="mb-3 pb-3" [class.border-bottom]="!last">
+        <div class="d-flex justify-content-between mb-1"><span class="fw-semibold">Doctor #{{ r.doctorId }}</span><div><i *ngFor="let f of starsFill(r.rating)" [class]="'bi bi-star' + (f ? '-fill text-warning' : ' text-muted')" style="font-size:.85rem"></i></div></div>
+        <p class="text-muted small mb-1">{{ r.comment }}</p>
+        <span class="text-muted" style="font-size:.74rem">{{ r.createdAt | date:'MMM dd, yyyy' }}</span>
+      </div>
+    </div>
+  </main>
+</div>

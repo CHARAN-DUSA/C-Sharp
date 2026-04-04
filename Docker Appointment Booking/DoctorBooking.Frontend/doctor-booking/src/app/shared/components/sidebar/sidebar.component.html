@@ -1,0 +1,34 @@
+<div class="sidebar d-none d-lg-block">
+  <nav class="sidebar-nav">
+    <ng-container *ngIf="isPatient()">
+      <div class="nav-section-title">Patient</div>
+      <a class="nav-link" routerLink="/patient/my-appointments" routerLinkActive="active"><i class="bi bi-calendar2-check"></i> My Appointments</a>
+      <a class="nav-link" routerLink="/patient/history" routerLinkActive="active"><i class="bi bi-clock-history"></i> History</a>
+      <a class="nav-link" routerLink="/doctors" routerLinkActive="active"><i class="bi bi-search"></i> Find Doctors</a>
+      <a class="nav-link" routerLink="/reviews" routerLinkActive="active"><i class="bi bi-star"></i> Reviews</a>
+      <div class="nav-section-title mt-3">Account</div>
+      <a class="nav-link" routerLink="/patient/profile" routerLinkActive="active"><i class="bi bi-person"></i> Profile</a>
+      <a class="nav-link" routerLink="/chat" routerLinkActive="active"><i class="bi bi-chat-dots"></i> Chat</a>
+      <a class="nav-link" routerLink="/notifications" routerLinkActive="active"><i class="bi bi-bell"></i> Notifications</a>
+    </ng-container>
+    <ng-container *ngIf="isDoctor()">
+      <div class="nav-section-title">Doctor</div>
+      <a class="nav-link" routerLink="/doctor/dashboard" routerLinkActive="active"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      <a class="nav-link" routerLink="/doctor/appointments" routerLinkActive="active"><i class="bi bi-calendar2-check"></i> Appointments</a>
+      <a class="nav-link" routerLink="/doctor/availability" routerLinkActive="active"><i class="bi bi-clock"></i> Availability</a>
+      <div class="nav-section-title mt-3">Account</div>
+      <a class="nav-link" routerLink="/doctor/profile" routerLinkActive="active"><i class="bi bi-person-badge"></i> Profile</a>
+      <a class="nav-link" routerLink="/chat" routerLinkActive="active"><i class="bi bi-chat-dots"></i> Chat</a>
+      <a class="nav-link" routerLink="/notifications" routerLinkActive="active"><i class="bi bi-bell"></i> Notifications</a>
+    </ng-container>
+    <ng-container *ngIf="isAdmin()">
+      <div class="nav-section-title">Admin</div>
+      <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a class="nav-link" routerLink="/admin/users" routerLinkActive="active"><i class="bi bi-people"></i> Users</a>
+      <a class="nav-link" routerLink="/admin/doctors" routerLinkActive="active"><i class="bi bi-person-badge"></i> Doctors</a>
+      <a class="nav-link" routerLink="/admin/appointments" routerLinkActive="active"><i class="bi bi-calendar2"></i> Appointments</a>
+      <div class="nav-section-title mt-3">System</div>
+      <a class="nav-link" routerLink="/notifications" routerLinkActive="active"><i class="bi bi-bell"></i> Notifications</a>
+    </ng-container>
+  </nav>
+</div>

@@ -1,0 +1,179 @@
+<app-navbar></app-navbar>
+<div style="padding-top:var(--mb-navbar-height);display:flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+
+    <div class="page-header">
+      <h2><i class="bi bi-clock text-primary me-2"></i>Manage Availability</h2>
+      <p>Generate time slots for a specific date. Slots are saved and persist after refresh.</p>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- LEFT: Generate slots form -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm p-4" style="border-radius:16px">
+          <h6 class="fw-bold mb-1">
+            <i class="bi bi-plus-circle text-primary me-2"></i>Generate Slots
+          </h6>
+          <p class="text-muted small mb-4">
+            Pick a date and working hours. Slots are created for that single day only.
+          </p>
+
+          <form [formGroup]="form" (ngSubmit)="generate()">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Date</label>
+              <input type="date" class="form-control" formControlName="date" [min]="minDate"
+                     [class.is-invalid]="form.get('date')?.invalid && form.get('date')?.touched">
+              <div class="invalid-feedback">Select a date.</div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold">Start Time</label>
+                <input type="time" class="form-control" formControlName="startTime">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">End Time</label>
+                <input type="time" class="form-control" formControlName="endTime">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Slot Duration</label>
+              <select class="form-select" formControlName="slotDurationMinutes">
+                <option [value]="15">15 minutes</option>
+                <option [value]="20">20 minutes</option>
+                <option [value]="30">30 minutes</option>
+                <option [value]="45">45 minutes</option>
+                <option [value]="60">60 minutes</option>
+              </select>
+            </div>
+
+            <div *ngIf="success()" class="alert alert-success py-2 mb-3" style="border-radius:8px">
+              <i class="bi bi-check-circle me-2"></i>{{ success() }}
+            </div>
+            <div *ngIf="error()" class="alert alert-danger py-2 mb-3" style="border-radius:8px">
+              <i class="bi bi-exclamation-triangle me-2"></i>{{ error() }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-semibold"
+                    [disabled]="loading()">
+              <span *ngIf="loading()" class="spinner-border spinner-border-sm me-2"></span>
+              {{ loading() ? 'Generating...' : 'Generate Slots' }}
+            </button>
+
+          </form>
+        </div>
+
+        <!-- View slots for a different date -->
+        <div class="card border-0 shadow-sm p-4 mt-3" style="border-radius:16px">
+          <h6 class="fw-bold mb-3">
+            <i class="bi bi-calendar3 text-primary me-2"></i>View Slots by Date
+          </h6>
+          <input type="date" class="form-control"
+                 [value]="viewDate"
+                 (change)="onViewDateChange($any($event.target).value)">
+        </div>
+      </div>
+
+      <!-- RIGHT: Slots list -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm" style="border-radius:16px">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">
+              <i class="bi bi-clock-history me-2 text-primary"></i>
+              Slots for {{ viewDate | date:'EEEE, MMM dd yyyy' }}
+            </span>
+            <span class="badge bg-primary rounded-pill">{{ slots().length }} slots</span>
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="slotsLoading()" class="text-center py-4">
+            <div class="spinner-border spinner-border-sm text-primary"></div>
+            <span class="ms-2 text-muted small">Loading slots...</span>
+          </div>
+
+          <!-- Empty -->
+          <div *ngIf="!slotsLoading() && slots().length === 0" class="text-center py-5 text-muted">
+            <i class="bi bi-calendar-x" style="font-size:2.5rem"></i>
+            <p class="mt-2 small">No slots for this date.<br>Generate slots using the form.</p>
+          </div>
+
+          <!-- Legend -->
+          <div *ngIf="!slotsLoading() && slots().length > 0"
+               class="d-flex gap-3 px-3 pt-3 pb-1">
+            <span class="d-flex align-items-center gap-1 small">
+              <span class="badge bg-success">•</span> Available
+            </span>
+            <span class="d-flex align-items-center gap-1 small">
+              <span class="badge bg-danger">•</span> Booked
+            </span>
+            <span class="d-flex align-items-center gap-1 small">
+              <span class="badge bg-secondary">•</span> Blocked
+            </span>
+          </div>
+
+          <!-- Slots list -->
+          <div *ngIf="!slotsLoading() && slots().length > 0" class="p-3">
+            <div *ngFor="let slot of slots()"
+                 class="d-flex align-items-center gap-3 p-3 mb-2 rounded-3 border"
+                 style="border-color:#e8edf5!important">
+
+              <!-- Status badge -->
+              <span class="badge rounded-pill px-3 py-2" [class]="slotStatusClass(slot)"
+                    style="min-width:80px;text-align:center">
+                {{ slotStatusLabel(slot) }}
+              </span>
+
+              <!-- Edit mode -->
+              <ng-container *ngIf="editingSlot()?.id === slot.id; else viewMode">
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                  <input type="time" class="form-control form-control-sm" [(ngModel)]="editStart"
+                         style="width:110px">
+                  <span class="text-muted">–</span>
+                  <input type="time" class="form-control form-control-sm" [(ngModel)]="editEnd"
+                         style="width:110px">
+                </div>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-success btn-sm fw-semibold" (click)="saveEdit()">
+                    <i class="bi bi-check"></i> Save
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="cancelEdit()">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+              </ng-container>
+
+              <!-- View mode -->
+              <ng-template #viewMode>
+                <div class="flex-grow-1">
+                  <span class="fw-semibold">{{ slot.startTime }} – {{ slot.endTime }}</span>
+                </div>
+                <div class="d-flex gap-2" *ngIf="!slot.isBooked">
+                  <button class="btn btn-outline-primary btn-sm"
+                          title="Adjust time"
+                          (click)="startEdit(slot)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm"
+                          title="Cancel slot"
+                          (click)="cancelSlot(slot)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <span *ngIf="slot.isBooked" class="text-muted small">
+                  <i class="bi bi-lock-fill me-1"></i>Locked
+                </span>
+              </ng-template>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

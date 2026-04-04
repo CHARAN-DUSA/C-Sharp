@@ -1,0 +1,3 @@
+export interface ChatMessage { id: number; senderId: string; receiverId: string; senderName: string; senderAvatar?: string; content: string; sentAt: string; isRead: boolean; appointmentId?: number; }
+export interface Conversation { participantId: string; participantName: string; participantAvatar?: string; lastMessage: string; lastMessageTime: string; unreadCount: number; }
+export interface Notification { id: number; userId: string; title: string; message: string; type: 'Appointment' | 'Message' | 'Reminder' | 'System'; isRead: boolean; createdAt: string; referenceId?: string; }

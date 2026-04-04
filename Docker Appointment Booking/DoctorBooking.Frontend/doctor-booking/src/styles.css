@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--mb-primary:#1e4d8c;--mb-teal:#0f9a8a;--mb-light:#f0f4ff;--mb-sidebar-width:250px;--mb-navbar-height:64px;}
+*{box-sizing:border-box;}
+body{font-family:'Inter',system-ui,sans-serif;background:#f8f9fc;color:#1a1a2e;margin:0;}
+.navbar-medibook{background:linear-gradient(135deg,var(--mb-primary) 0%,var(--mb-teal) 100%);min-height:var(--mb-navbar-height);box-shadow:0 2px 12px rgba(30,77,140,.18);}
+.navbar-medibook .navbar-brand{font-size:1.4rem;font-weight:800;color:#fff!important;}
+.navbar-medibook .navbar-brand span{color:#a8d8f0;}
+.navbar-medibook .nav-link{color:rgba(255,255,255,.85)!important;font-weight:500;}
+.navbar-medibook .nav-link:hover{color:#fff!important;}
+.sidebar{width:var(--mb-sidebar-width);min-height:calc(100vh - var(--mb-navbar-height));background:#fff;border-right:1px solid #e2e8f0;position:fixed;top:var(--mb-navbar-height);left:0;overflow-y:auto;z-index:100;}
+.sidebar-nav{padding:1rem 0;}
+.nav-section-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;padding:.75rem 1.25rem .25rem;}
+.sidebar-nav .nav-link{color:#475569;padding:.6rem 1.25rem;display:flex;align-items:center;gap:.6rem;font-weight:500;font-size:.88rem;transition:all .15s;text-decoration:none;}
+.sidebar-nav .nav-link i{width:20px;}
+.sidebar-nav .nav-link:hover{background:var(--mb-light);color:var(--mb-primary);}
+.sidebar-nav .nav-link.active{background:var(--mb-light);color:var(--mb-primary);border-right:3px solid var(--mb-primary);font-weight:600;}
+.main-content{margin-left:var(--mb-sidebar-width);padding:2rem;min-height:calc(100vh - var(--mb-navbar-height));flex:1;}
+.page-header{margin-bottom:1.75rem;}
+.page-header h2{font-size:1.55rem;font-weight:700;color:#1a1a2e;margin:0;}
+.page-header p{color:#64748b;margin:.25rem 0 0;}
+.card{border:1px solid #e8edf5!important;border-radius:12px!important;box-shadow:0 1px 6px rgba(0,0,0,.06)!important;}
+.card-header{background:transparent!important;border-bottom:1px solid #e8edf5!important;font-weight:600;padding:1rem 1.25rem;}
+.stat-card{border-radius:14px!important;padding:1.4rem;color:#fff;position:relative;overflow:hidden;border:none!important;}
+.stat-card::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.12);}
+.stat-card .stat-icon{font-size:2.2rem;opacity:.85;}
+.stat-card .stat-value{font-size:1.9rem;font-weight:700;}
+.stat-card .stat-label{font-size:.82rem;opacity:.85;}
+.stat-card.bg-patients{background:linear-gradient(135deg,#667eea,#764ba2);}
+.stat-card.bg-doctors{background:linear-gradient(135deg,#0f9a8a,#06968b);}
+.stat-card.bg-appts{background:linear-gradient(135deg,#f093fb,#f5576c);}
+.stat-card.bg-revenue{background:linear-gradient(135deg,#4facfe,#00f2fe);}
+.doctor-card{border-radius:16px!important;overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:pointer;}
+.doctor-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.14)!important;}
+.specialty-badge{background:var(--mb-light);color:var(--mb-primary);font-size:.75rem;font-weight:600;padding:2px 10px;border-radius:20px;display:inline-block;}
+.rating-stars{color:#f59e0b;}
+.appt-card{border-left:4px solid transparent;border-radius:10px!important;}
+.appt-card.status-upcoming{border-left-color:#0d6efd;}
+.appt-card.status-completed{border-left-color:#198754;}
+.appt-card.status-cancelled{border-left-color:#dc3545;}
+.appt-card.status-pending{border-left-color:#ffc107;}
+.chat-container{display:flex;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);background:#fff;}
+.chat-sidebar{width:300px;background:#fff;border-right:1px solid #e8edf5;overflow-y:auto;flex-shrink:0;}
+.chat-item{padding:.9rem 1rem;cursor:pointer;transition:background .15s;border-bottom:1px solid #f1f5f9;}
+.chat-item:hover,.chat-item.active{background:var(--mb-light);}
+.unread-badge{background:var(--mb-primary);color:#fff;font-size:.68rem;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;}
+.chat-main{flex:1;display:flex;flex-direction:column;background:#f8f9fc;min-width:0;}
+.chat-header{background:#fff;padding:1rem 1.5rem;border-bottom:1px solid #e8edf5;}
+.chat-messages{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;}
+.message-bubble{max-width:65%;padding:.6rem 1rem;border-radius:16px;margin-bottom:.65rem;font-size:.91rem;word-break:break-word;}
+.message-bubble.sent{background:var(--mb-primary);color:#fff;border-bottom-right-radius:4px;align-self:flex-end;}
+.message-bubble.received{background:#fff;border:1px solid #e8edf5;border-bottom-left-radius:4px;align-self:flex-start;}
+.message-time{font-size:.68rem;opacity:.65;margin-top:4px;}
+.chat-input-area{background:#fff;padding:1rem 1.5rem;border-top:1px solid #e8edf5;}
+.chat-input{border-radius:24px!important;border:1.5px solid #dde4ef!important;resize:none;}
+.send-btn{width:42px;height:42px;border-radius:50%;background:var(--mb-primary);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.send-btn:disabled{opacity:.55;cursor:not-allowed;}
+.role-badge{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;}
+.role-badge.patient{background:#dbeafe;color:#1e40af;}
+.role-badge.doctor{background:#dcfce7;color:#166534;}
+.role-badge.admin{background:#fef3c7;color:#92400e;}
+.availability-slot{display:inline-block;padding:6px 14px;border-radius:8px;font-size:.84rem;font-weight:500;border:1.5px solid #dde4ef;cursor:pointer;background:#fff;transition:all .15s;}
+.availability-slot:hover,.availability-slot.selected{background:var(--mb-primary);color:#fff;border-color:var(--mb-primary);}
+.availability-slot.booked{background:#fee2e2;color:#991b1b;border-color:#fee2e2;cursor:not-allowed;}
+.form-control,.form-select{border-radius:8px!important;border:1.5px solid #dde4ef!important;}
+.form-control:focus,.form-select:focus{border-color:var(--mb-primary)!important;box-shadow:0 0 0 3px rgba(13,110,253,.1)!important;}
+.input-group-text{border:1.5px solid #dde4ef;background:#f8f9fc;}
+.btn{border-radius:8px!important;font-weight:600;}
+.btn-primary{background:linear-gradient(135deg,var(--mb-primary),#0a58ca)!important;border:none!important;}
+.table th{font-weight:600;color:#475569;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;}
+.table td{vertical-align:middle;}
+.notification-item{padding:.85rem 1rem;border-bottom:1px solid #f1f5f9;transition:background .15s;cursor:pointer;}
+.notification-item:hover{background:var(--mb-light);}
+.notification-item.unread{background:#eff6ff;}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--mb-primary);flex-shrink:0;margin-top:6px;}
+.hero-section{background:linear-gradient(135deg,var(--mb-primary) 0%,var(--mb-teal) 100%);color:#fff;padding:5rem 0;position:relative;overflow:hidden;}
+.hero-section h1{font-size:2.8rem;font-weight:800;line-height:1.2;}
+.min-w-0{min-width:0;}
+@media(max-width:768px){.sidebar{display:none;}.main-content{margin-left:0;padding:1rem;}.hero-section h1{font-size:2rem;}.chat-container .chat-sidebar{display:none;}}

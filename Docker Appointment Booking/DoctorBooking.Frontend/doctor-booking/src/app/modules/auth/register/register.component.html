@@ -1,0 +1,174 @@
+<div class="min-vh-100 d-flex align-items-center py-5"
+     style="background:linear-gradient(135deg,#f0f4ff,#e8f5e9)">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8 col-xl-7">
+
+        <div class="text-center mb-4">
+          <a routerLink="/" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3">
+            <i class="bi bi-heart-pulse-fill text-primary fs-2"></i>
+            <span class="fw-bold fs-4 text-dark">MediBook</span>
+          </a>
+          <h2 class="fw-bold">Create your account</h2>
+          <p class="text-muted">Join thousands of patients and doctors</p>
+        </div>
+
+        <div class="card border-0 shadow p-4" style="border-radius:16px">
+          <form [formGroup]="form" (ngSubmit)="submit()">
+
+            <!-- Role Selector -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">I am a...</label>
+              <div class="d-flex gap-3">
+                <div class="flex-fill">
+                  <input type="radio" class="btn-check" id="rolePatient"
+                         formControlName="role" value="Patient">
+                  <label class="btn btn-outline-primary w-100 py-3" for="rolePatient">
+                    <i class="bi bi-person-heart d-block fs-3 mb-1"></i>Patient
+                  </label>
+                </div>
+                <div class="flex-fill">
+                  <input type="radio" class="btn-check" id="roleDoctor"
+                         formControlName="role" value="Doctor">
+                  <label class="btn btn-outline-success w-100 py-3" for="roleDoctor">
+                    <i class="bi bi-person-badge d-block fs-3 mb-1"></i>Doctor
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+
+              <!-- Name -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">First Name</label>
+                <input type="text" class="form-control" formControlName="firstName"
+                       placeholder="John"
+                       [class.is-invalid]="form.get('firstName')?.invalid && form.get('firstName')?.touched">
+                <div class="invalid-feedback">First name is required.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Last Name</label>
+                <input type="text" class="form-control" formControlName="lastName"
+                       placeholder="Doe"
+                       [class.is-invalid]="form.get('lastName')?.invalid && form.get('lastName')?.touched">
+                <div class="invalid-feedback">Last name is required.</div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                  <input type="email" class="form-control" formControlName="email"
+                         placeholder="you@example.com"
+                         [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched">
+                  <div class="invalid-feedback">Valid email required.</div>
+                </div>
+              </div>
+
+              <!-- Phone Number -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">
+                  Phone Number <span class="text-muted small">(used for OTP login)</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                  <input type="tel" class="form-control" formControlName="phoneNumber"
+                         placeholder="+919876543210"
+                         [class.is-invalid]="form.get('phoneNumber')?.invalid && form.get('phoneNumber')?.touched">
+                  <div class="invalid-feedback">
+                    Required Country code 
+                  </div>
+                </div>
+                <small class="text-muted">Include country code — e.g. +91 for India, +1 for USA</small>
+              </div>
+
+              <!-- Password -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                  <input type="password" class="form-control" formControlName="password"
+                         placeholder="Min 6 chars, 1 uppercase, 1 number"
+                         [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+                  <div class="invalid-feedback">
+                    Min 6 characters. Must include 1 uppercase and 1 number.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gender -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Gender</label>
+                <select class="form-select" formControlName="gender">
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <!-- Doctor-specific fields -->
+              <ng-container *ngIf="isDoctor">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Specialty</label>
+                  <select class="form-select" formControlName="specialty">
+                    <option value="">Select specialty</option>
+                    <option>General Medicine</option>
+                    <option>Cardiology</option>
+                    <option>Neurology</option>
+                    <option>Orthopedics</option>
+                    <option>Dermatology</option>
+                    <option>Pediatrics</option>
+                    <option>Gynecology</option>
+                    <option>Psychiatry</option>
+                    <option>Ophthalmology</option>
+                    <option>Dentistry</option>
+                    <option>Oncology</option>
+                    <option>Radiology</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Qualifications</label>
+                  <input type="text" class="form-control" formControlName="qualifications"
+                         placeholder="MBBS, MD, MS...">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Consultation Fee (₹)</label>
+                  <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input type="number" class="form-control" formControlName="consultationFee"
+                           min="0" placeholder="500">
+                  </div>
+                </div>
+              </ng-container>
+
+            </div>
+
+            <!-- Error -->
+            <div *ngIf="error()" class="alert alert-danger py-2 mt-3" style="border-radius:8px">
+              <i class="bi bi-exclamation-triangle me-2"></i>{{ error() }}
+            </div>
+
+            <!-- Submit -->
+            <button type="submit"
+                    class="btn btn-primary w-100 py-3 fw-semibold mt-4"
+                    [disabled]="loading()">
+              <span *ngIf="loading()" class="spinner-border spinner-border-sm me-2"></span>
+              {{ loading() ? 'Creating account...' : 'Create Account' }}
+            </button>
+
+          </form>
+
+          <div class="text-center mt-3">
+            <span class="text-muted">Already have an account?</span>
+            <a routerLink="/auth/login"
+               class="text-primary fw-semibold text-decoration-none ms-1">Sign in</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

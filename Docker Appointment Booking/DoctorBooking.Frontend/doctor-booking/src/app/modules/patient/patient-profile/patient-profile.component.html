@@ -1,0 +1,28 @@
+<app-navbar></app-navbar>
+<div style="padding-top:var(--mb-navbar-height);display:flex">
+  <app-sidebar></app-sidebar>
+  <main class="main-content">
+    <div class="page-header"><h2><i class="bi bi-person-circle text-primary me-2"></i>My Profile</h2><p>Manage your personal information</p></div>
+    <div class="row g-4">
+      <div class="col-lg-4"><div class="card border-0 shadow-sm p-4 text-center" style="border-radius:16px"><div class="mx-auto mb-3" style="width:100px;height:100px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center"><i class="bi bi-person-circle text-primary" style="font-size:3.5rem"></i></div><h5 class="fw-bold">{{ auth.currentUser()?.fullName }}</h5><span class="role-badge patient">Patient</span><div class="text-muted small mt-2">{{ auth.currentUser()?.email }}</div></div></div>
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4" style="border-radius:16px">
+          <h6 class="fw-bold mb-4"><i class="bi bi-pencil me-2 text-primary"></i>Personal Information</h6>
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label fw-semibold">Gender</label><select class="form-select" formControlName="gender"><option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+              <div class="col-md-6"><label class="form-label fw-semibold">Blood Group</label><select class="form-select" formControlName="bloodGroup"><option value="">Select</option><option *ngFor="let b of bloodGroups" [value]="b">{{ b }}</option></select></div>
+              <div class="col-md-6"><label class="form-label fw-semibold">Phone Number</label><input type="tel" class="form-control" formControlName="phoneNumber"></div>
+              <div class="col-md-6"><label class="form-label fw-semibold">Emergency Contact</label><input type="text" class="form-control" formControlName="emergencyContact"></div>
+              <div class="col-12"><label class="form-label fw-semibold">Allergies</label><input type="text" class="form-control" formControlName="allergies" placeholder="e.g. Penicillin, Peanuts"></div>
+              <div class="col-12"><label class="form-label fw-semibold">Medical History</label><textarea class="form-control" formControlName="medicalHistory" rows="3"></textarea></div>
+              <div class="col-12"><label class="form-label fw-semibold">Address</label><input type="text" class="form-control" formControlName="address"></div>
+            </div>
+            <div *ngIf="saved()" class="alert alert-success py-2 mt-3" style="border-radius:8px"><i class="bi bi-check-circle me-2"></i>Saved successfully.</div>
+            <button type="submit" class="btn btn-primary mt-3 px-4 fw-semibold" [disabled]="saving()"><span *ngIf="saving()" class="spinner-border spinner-border-sm me-2"></span>{{ saving() ? 'Saving...' : 'Save Changes' }}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
