@@ -5,11 +5,14 @@ import { Observable, from, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginDto, RegisterDto, UserRole } from '../models/user.model';
 
-// Firebase imports
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import {
+  getAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  ConfirmationResult
+} from 'firebase/auth';
 
-// ✅ Initialize Firebase once
 if (!getApps().length) {
   initializeApp(environment.firebaseConfig);
 }
@@ -28,7 +31,7 @@ export class AuthService {
   readonly isAdmin     = computed(() => this._user()?.role === 'Admin');
 
   private confirmationResult: ConfirmationResult | null = null;
-  private recaptchaVerifier: RecaptchaVerifier | null = null;
+  private recaptchaVerifier:  RecaptchaVerifier  | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -51,8 +54,9 @@ export class AuthService {
 
   // ── PHONE + PASSWORD ───────────────────────────────────────
   loginWithPhone(phoneNumber: string, password: string) {
-    return this.http.post<any>(`${environment.apiUrl}/auth/login-phone`, { phoneNumber, password })
-      .pipe(tap(r => { if (!r.requiresTwoFactor) this.store(r); }));
+    return this.http.post<any>(
+      `${environment.apiUrl}/auth/login-phone`, { phoneNumber, password }
+    ).pipe(tap(r => { if (!r.requiresTwoFactor) this.store(r); }));
   }
 
   // ── PHONE OTP VIA FIREBASE ─────────────────────────────────
@@ -60,16 +64,20 @@ export class AuthService {
     const auth = getAuth();
 
     if (this.recaptchaVerifier) {
-      try { this.recaptchaVerifier.clear(); } catch (e) { console.warn('Recaptcha clear error:', e); }
+      try { this.recaptchaVerifier.clear(); } catch (e) { console.warn('reCAPTCHA clear:', e); }
       this.recaptchaVerifier = null;
     }
 
     const container = document.getElementById('recaptcha-container');
     if (!container) {
-      return new Observable(o => o.error({ error: { detail: 'Recaptcha container not found in DOM.' } }));
+      return new Observable(o =>
+        o.error({ error: { detail: 'Recaptcha container not found.' } })
+      );
     }
 
-    this.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+    this.recaptchaVerifier = new RecaptchaVerifier(
+      auth, 'recaptcha-container', { size: 'invisible' }
+    );
 
     return from(
       signInWithPhoneNumber(auth, phoneNumber, this.recaptchaVerifier)
@@ -79,28 +87,32 @@ export class AuthService {
 
   verifyOtp(phoneNumber: string, otpCode: string, role: string = 'Patient'): Observable<any> {
     if (!this.confirmationResult)
-      return new Observable(o => o.error({ error: { detail: 'No OTP request found. Please resend.' } }));
+      return new Observable(o =>
+        o.error({ error: { detail: 'No OTP request found. Please resend.' } })
+      );
 
     return from(
-      this.confirmationResult.confirm(otpCode).then(result => result.user.getIdToken())
+      this.confirmationResult.confirm(otpCode).then(r => r.user.getIdToken())
     ).pipe(
       switchMap(idToken =>
-        this.http.post<any>(`${environment.apiUrl}/auth/firebase-login`, { idToken, role })
-          .pipe(tap(r => { if (!r.requiresTwoFactor) this.store(r); }))
+        this.http.post<any>(
+          `${environment.apiUrl}/auth/firebase-login`, { idToken, role }
+        ).pipe(tap(r => { if (!r.requiresTwoFactor) this.store(r); }))
       )
     );
   }
 
   // ── TWO-FACTOR AUTH ────────────────────────────────────────
   verifyTwoFactor(userId: string, code: string) {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/2fa/verify`, { userId, code })
-      .pipe(tap(r => this.store(r)));
+    return this.http.post<AuthResponse>(
+      `${environment.apiUrl}/auth/2fa/verify`, { userId, code }
+    ).pipe(tap(r => this.store(r)));
   }
 
-  setup2fa()              { return this.http.post<any>(`${environment.apiUrl}/auth/2fa/setup`,   {}); }
-  enable2fa(code: string) { return this.http.post<any>(`${environment.apiUrl}/auth/2fa/enable`,  { code }); }
-  disable2fa(code: string){ return this.http.post<any>(`${environment.apiUrl}/auth/2fa/disable`, { code }); }
-  get2faStatus()          { return this.http.get<{ enabled: boolean }>(`${environment.apiUrl}/auth/2fa/status`); }
+  setup2fa()               { return this.http.post<any>(`${environment.apiUrl}/auth/2fa/setup`,   {}); }
+  enable2fa(code: string)  { return this.http.post<any>(`${environment.apiUrl}/auth/2fa/enable`,  { code }); }
+  disable2fa(code: string) { return this.http.post<any>(`${environment.apiUrl}/auth/2fa/disable`, { code }); }
+  get2faStatus()           { return this.http.get<{ enabled: boolean }>(`${environment.apiUrl}/auth/2fa/status`); }
 
   // ── PASSWORD RESET ─────────────────────────────────────────
   forgotPassword(email: string) {
@@ -117,17 +129,29 @@ export class AuthService {
 
   getToken(): string | null { return localStorage.getItem(this.TOKEN_KEY); }
 
+  // ✅ Reads role from signal first, falls back to localStorage
+  // Prevents race condition where signal hasn't updated yet when guard runs
   redirectAfterLogin() {
-    const role = this.userRole();
+    let role = this.userRole();
 
     if (!role) {
-      // Role not yet available — should never happen but safe fallback
-      console.error('redirectAfterLogin: role is null, falling back to /login');
+      try {
+        const stored = localStorage.getItem(this.USER_KEY);
+        role = stored ? JSON.parse(stored)?.role ?? null : null;
+      } catch {
+        role = null;
+      }
+    }
+
+    console.log('🟢 redirectAfterLogin — role:', role);
+
+    if (!role) {
+      console.error('❌ No role found — sending to login');
       this.router.navigate(['/auth/login']);
       return;
     }
 
-    const map: Record<UserRole, string> = {
+    const map: Record<string, string> = {
       Patient: '/patient/my-appointments',
       Doctor:  '/doctor/dashboard',
       Admin:   '/admin/dashboard'
@@ -135,11 +159,12 @@ export class AuthService {
 
     const route = map[role];
     if (!route) {
-      console.error(`redirectAfterLogin: unknown role "${role}"`);
+      console.error('❌ Unknown role:', role);
       this.router.navigate(['/auth/login']);
       return;
     }
 
+    console.log('🟢 Navigating to:', route);
     this.router.navigate([route]);
   }
 
