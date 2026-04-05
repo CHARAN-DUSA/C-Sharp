@@ -114,6 +114,7 @@ builder.Services.AddHostedService<AppointmentCleanupService>();
 builder.Services.AddScoped<TwoFactorService>();
 builder.Services.AddScoped<FirebaseAuthService>();
 builder.Services.AddSingleton<FirebaseAdminService>();
+builder.Services.AddHttpClient();
 
 // ── SIGNALR ─────────────────────────────────────────────────
 builder.Services.AddSignalR();

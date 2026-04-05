@@ -279,34 +279,47 @@ public class EmailService
     {
         try
         {
-            var es = _config.GetSection("EmailSettings");
-            var msg = new MimeMessage();
-            msg.From.Add(new MailboxAddress(es["FromName"]!, es["FromEmail"]!));
-            msg.To.Add(MailboxAddress.Parse(toEmail));
-            msg.Subject = subject;
-            msg.Body = new TextPart("html") { Text = htmlBody };
+            var bs = _config.GetSection("BrevoSettings");
 
-            using var client = new SmtpClient();
+            using var client = new HttpClient();
 
-            // Gmail: port 587 = STARTTLS (not SSL)
-            await client.ConnectAsync(
-                es["Host"]!,
-                int.Parse(es["Port"]!),
-                SecureSocketOptions.StartTls);
+            client.DefaultRequestHeaders.Add("api-key", bs["ApiKey"]);
 
-            await client.AuthenticateAsync(
-                es["Username"]!,
-                es["Password"]!);
+            var requestBody = new
+            {
+                sender = new
+                {
+                    name = bs["FromName"],
+                    email = bs["FromEmail"]
+                },
+                to = new[]
+                {
+                new { email = toEmail }
+            },
+                subject = subject,
+                htmlContent = htmlBody
+            };
 
-            await client.SendAsync(msg);
-            await client.DisconnectAsync(true);
+            var response = await client.PostAsJsonAsync(
+                "https://api.brevo.com/v3/smtp/email",
+                requestBody
+            );
 
-            _logger.LogInformation("✅ Email sent → {Email} | {Subject}", toEmail, subject);
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("✅ Email sent → {Email} | {Subject}", toEmail, subject);
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogError("❌ Brevo FAILED → {Email} | {Error}", toEmail, error);
+                throw new Exception(error);
+            }
         }
         catch (Exception ex)
         {
-            // Log the FULL error so you can debug
-            _logger.LogError(ex, "❌ Email FAILED → {Email} | Error: {Message}", toEmail, ex.Message);
+            _logger.LogError(ex, "❌ Email FAILED → {Email}", toEmail);
+            throw;
         }
     }
 }

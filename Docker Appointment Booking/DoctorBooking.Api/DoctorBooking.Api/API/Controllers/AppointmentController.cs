@@ -19,27 +19,31 @@ public class AppointmentsController : ControllerBase
     private readonly IPatientRepository _patRepo;
     private readonly INotificationRepository _notifRepo;
     private readonly EmailService _email;
+    private readonly ILogger<AppointmentsController> _logger; // ✅ added
 
-    public AppointmentsController(IAppointmentRepository repo, IDoctorRepository docRepo,
-        IPatientRepository patRepo, INotificationRepository notifRepo, EmailService email)
+    public AppointmentsController(
+        IAppointmentRepository repo,
+        IDoctorRepository docRepo,
+        IPatientRepository patRepo,
+        INotificationRepository notifRepo,
+        EmailService email,
+        ILogger<AppointmentsController> logger) // ✅ added
     {
         _repo = repo;
         _docRepo = docRepo;
         _patRepo = patRepo;
         _notifRepo = notifRepo;
         _email = email;
+        _logger = logger; // ✅ added
     }
 
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-    // ✅ FIXED METHOD
-    // GET api/appointments/my
+    // ── GET MY APPOINTMENTS ───────────────────────────────────
     [HttpGet("my")]
     public async Task<IActionResult> GetMyAppointments([FromQuery] string? status)
     {
-        // 🔥 Convert string → enum safely
         AppointmentStatus? parsedStatus = null;
-
         if (!string.IsNullOrEmpty(status) &&
             Enum.TryParse<AppointmentStatus>(status, true, out var result))
         {
@@ -53,21 +57,19 @@ public class AppointmentsController : ControllerBase
         {
             var patient = await _patRepo.GetByUserIdAsync(UserId);
             if (patient is null) return NotFound("Patient not found");
-
             appts = await _repo.GetByPatientIdAsync(patient.Id, parsedStatus);
         }
         else
         {
             var doctor = await _docRepo.GetByUserIdAsync(UserId);
             if (doctor is null) return NotFound("Doctor not found");
-
             appts = await _repo.GetByDoctorIdAsync(doctor.Id, parsedStatus);
         }
 
         return Ok(appts.Select(MapToDto));
     }
 
-    // GET api/appointments/{id}
+    // ── GET BY ID ─────────────────────────────────────────────
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -75,7 +77,7 @@ public class AppointmentsController : ControllerBase
         return appt is null ? NotFound() : Ok(MapToDto(appt));
     }
 
-    // POST api/appointments
+    // ── BOOK APPOINTMENT ──────────────────────────────────────
     [HttpPost]
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> Book([FromBody] BookAppointmentDto dto)
@@ -115,19 +117,33 @@ public class AppointmentsController : ControllerBase
             Type = "Appointment"
         });
 
-        _ = Task.Run(() => _email.SendAppointmentConfirmationAsync(
-            toEmail: patient.User.Email!,
-            patientName: patient.User.FullName,
-            doctorName: doctor.User.FullName,
-            date: dto.AppointmentDate,
-            timeSlot: dto.TimeSlot,
-            fee: doctor.ConsultationFee,
-            reason: dto.Reason));
+        // ✅ Fixed — properly async with error logging
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _email.SendAppointmentConfirmationAsync(
+                    toEmail: patient.User.Email!,
+                    patientName: patient.User.FullName,
+                    doctorName: doctor.User.FullName,
+                    date: dto.AppointmentDate,
+                    timeSlot: dto.TimeSlot,
+                    fee: doctor.ConsultationFee,
+                    reason: dto.Reason);
+                _logger.LogInformation("✅ Appointment confirmation email sent to {Email}",
+                    patient.User.Email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Appointment confirmation email failed for {Email}",
+                    patient.User.Email);
+            }
+        });
 
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, MapToDto(created));
     }
 
-    // PATCH api/appointments/{id}/cancel
+    // ── CANCEL ────────────────────────────────────────────────
     [HttpPatch("{id}/cancel")]
     public async Task<IActionResult> Cancel(int id, [FromBody] ConcurrencyDto dto)
     {
@@ -144,7 +160,7 @@ public class AppointmentsController : ControllerBase
         return NoContent();
     }
 
-    // PATCH api/appointments/{id}/confirm
+    // ── CONFIRM ───────────────────────────────────────────────
     [HttpPatch("{id}/confirm")]
     [Authorize(Roles = "Doctor,Admin")]
     public async Task<IActionResult> Confirm(int id, [FromBody] ConcurrencyDto dto)
@@ -159,7 +175,7 @@ public class AppointmentsController : ControllerBase
         return success ? NoContent() : Conflict(new { detail = "Concurrency conflict. Please refresh." });
     }
 
-    // PATCH api/appointments/{id}/complete
+    // ── COMPLETE ──────────────────────────────────────────────
     [HttpPatch("{id}/complete")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> Complete(int id, [FromBody] CompleteAppointmentDto dto)
@@ -176,6 +192,7 @@ public class AppointmentsController : ControllerBase
         return success ? NoContent() : Conflict(new { detail = "Concurrency conflict. Please refresh." });
     }
 
+    // ── MAPPING ───────────────────────────────────────────────
     private static AppointmentResponseDto MapToDto(Appointment a) => new()
     {
         Id = a.Id,
