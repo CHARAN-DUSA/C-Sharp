@@ -129,7 +129,7 @@ export class CallbackComponent implements OnInit {
 
         if (r.requiresTwoFactor) {
           this.router.navigate(['/auth/login'], {
-            queryParams: { twoFa: true, userId: r.userId }
+            queryParams: { twoFa: 'true', userId: r.userId }
           });
           return;
         }
