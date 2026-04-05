@@ -6,8 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
 
-declare const google: any;
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -15,53 +13,46 @@ declare const google: any;
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent
-{
-  mode = signal<'email' | 'phone' | '2fa'>('email');
-  showPwd = signal(false);
+export class LoginComponent {
+  mode         = signal<'email' | 'phone' | '2fa'>('email');
+  showPwd      = signal(false);
   showPhonePwd = signal(false);
-  loading = signal(false);
-  error = signal('');
-  twoFaUserId = signal('');
+  loading      = signal(false);
+  error        = signal('');
+  twoFaUserId  = signal('');
 
   emailForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    email:    ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
-  // ✅ Phone login now uses phone + password
   phoneLoginForm = this.fb.group({
     phoneNumber: ['', [Validators.required, Validators.pattern(/^\+[1-9]\d{7,14}$/)]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password:    ['', [Validators.required, Validators.minLength(6)]]
   });
 
   twoFaForm = this.fb.group({
     code: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
   });
 
-  private googleInitialized = false;
-
   constructor(
-    private fb: FormBuilder,
+    private fb:   FormBuilder,
     private auth: AuthService,
     private http: HttpClient
-  ) { }
+  ) {}
 
-  // ── Email login ───────────────────────────────────────────
-  submitEmail()
-  {
+  // ── Email login ────────────────────────────────────────────
+  submitEmail() {
     if (this.emailForm.invalid) { this.emailForm.markAllAsTouched(); return; }
     this.loading.set(true);
     this.error.set('');
     this.auth.login(this.emailForm.value as any).subscribe({
-      next: (r: any) =>
-      {
+      next: (r: any) => {
         this.loading.set(false);
         if (r.requiresTwoFactor) { this.twoFaUserId.set(r.userId); this.mode.set('2fa'); }
         else this.auth.redirectAfterLogin();
       },
-      error: (e: any) =>
-      {
+      error: (e: any) => {
         this.loading.set(false);
         if (e.status === 429) this.error.set('Too many attempts. Please wait before trying again.');
         else this.error.set(e.error?.detail ?? 'Login failed. Check your credentials.');
@@ -69,32 +60,21 @@ export class LoginComponent
     });
   }
 
-  // ✅ Phone + password login
-  submitPhoneLogin()
-  {
+  // ── Phone + password login ─────────────────────────────────
+  submitPhoneLogin() {
     if (this.phoneLoginForm.invalid) { this.phoneLoginForm.markAllAsTouched(); return; }
     this.loading.set(true);
     this.error.set('');
-
-    // ✅ Use service method — no need to touch store() visibility
     this.auth.loginWithPhone(
       this.phoneLoginForm.value.phoneNumber!,
       this.phoneLoginForm.value.password!
     ).subscribe({
-      next: (r: any) =>
-      {
+      next: (r: any) => {
         this.loading.set(false);
-        if (r.requiresTwoFactor)
-        {
-          this.twoFaUserId.set(r.userId);
-          this.mode.set('2fa');
-        } else
-        {
-          this.auth.redirectAfterLogin();
-        }
+        if (r.requiresTwoFactor) { this.twoFaUserId.set(r.userId); this.mode.set('2fa'); }
+        else this.auth.redirectAfterLogin();
       },
-      error: (e: any) =>
-      {
+      error: (e: any) => {
         this.loading.set(false);
         if (e.status === 429) this.error.set('Too many attempts. Please wait.');
         else this.error.set(e.error?.detail ?? 'Login failed. Check your phone and password.');
@@ -102,31 +82,46 @@ export class LoginComponent
     });
   }
 
-  // ── Google OAuth ──────────────────────────────────────────
+  // ── Google OAuth ───────────────────────────────────────────
   signInWithGoogle() {
-  if (this.googleInitialized) return;
-  this.googleInitialized = true;
-  this.error.set('');
+    this.error.set('');
+    this.loading.set(true);
 
-  const state = Math.random().toString(36).substring(2);
-  localStorage.setItem('oauth_state', state);
+    // ✅ Generate and persist state BEFORE navigating away
+    const state = crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).substring(2)
+        + Math.random().toString(36).substring(2);
 
-  // ✅ Dynamic redirect URI — works on both localhost and Vercel
-  const redirectUri = `${window.location.origin}/auth/callback`;
+    // ✅ Clear any stale state from a previous attempt
+    localStorage.removeItem('oauth_state');
+    localStorage.removeItem('oauth_intended_role');
 
-  window.location.href =
-    `https://accounts.google.com/o/oauth2/v2/auth`
-    + `?client_id=${environment.googleClientId}`
-    + `&redirect_uri=${encodeURIComponent(redirectUri)}`
-    + `&response_type=token%20id_token`
-    + `&scope=${encodeURIComponent('openid email profile')}`
-    + `&state=${state}`
-    + `&nonce=${Math.random().toString(36).substring(2)}`;
-}
+    // ✅ Small delay ensures localStorage write completes before navigation
+    setTimeout(() => {
+      localStorage.setItem('oauth_state', state);
+      localStorage.setItem('oauth_intended_role', 'Patient');
 
-  // ── 2FA ───────────────────────────────────────────────────
-  verifyTwoFa()
-  {
+      const redirectUri = `${window.location.origin}/auth/callback`;
+
+      const oauthUrl =
+        `https://accounts.google.com/o/oauth2/v2/auth`
+        + `?client_id=${encodeURIComponent(environment.googleClientId)}`
+        + `&redirect_uri=${encodeURIComponent(redirectUri)}`
+        + `&response_type=token%20id_token`
+        + `&scope=${encodeURIComponent('openid email profile')}`
+        + `&state=${encodeURIComponent(state)}`
+        + `&nonce=${encodeURIComponent(crypto.randomUUID
+            ? crypto.randomUUID()
+            : Math.random().toString(36).substring(2))}`
+        + `&prompt=select_account`;   // ✅ Forces account picker every time
+
+      window.location.href = oauthUrl;
+    }, 50);
+  }
+
+  // ── 2FA verify ─────────────────────────────────────────────
+  verifyTwoFa() {
     if (this.twoFaForm.invalid) { this.twoFaForm.markAllAsTouched(); return; }
     this.loading.set(true);
     this.error.set('');
@@ -136,6 +131,6 @@ export class LoginComponent
     });
   }
 
-  togglePassword() { this.showPwd.update(v => !v); }
+  togglePassword()      { this.showPwd.update(v => !v); }
   togglePhonePassword() { this.showPhonePwd.update(v => !v); }
 }

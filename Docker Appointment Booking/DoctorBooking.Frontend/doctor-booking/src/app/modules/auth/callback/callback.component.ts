@@ -9,8 +9,6 @@ import { CommonModule } from '@angular/common';
   template: `
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;
                 justify-content:center;background:linear-gradient(135deg,#eff6ff,#eef2ff)">
-
-      <!-- Brand -->
       <div style="margin-bottom:2rem;text-align:center">
         <div style="width:64px;height:64px;background:#4f46e5;border-radius:16px;
                     display:flex;align-items:center;justify-content:center;
@@ -24,14 +22,11 @@ import { CommonModule } from '@angular/common';
         <h1 style="font-size:1.5rem;font-weight:700;color:#1f2937;margin:0">MediBook</h1>
       </div>
 
-      <!-- Card -->
       <div style="background:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.1);
                   padding:2.5rem 3rem;display:flex;flex-direction:column;
                   align-items:center;gap:1.25rem;min-width:300px">
-
-        <!-- Spinner + Google icon -->
-        <div style="position:relative;width:56px;height:56px;display:flex;
-                    align-items:center;justify-content:center">
+        <div style="position:relative;width:56px;height:56px;
+                    display:flex;align-items:center;justify-content:center">
           <svg style="animation:spin 1s linear infinite;width:56px;height:56px;color:#6366f1"
                fill="none" viewBox="0 0 24 24">
             <circle style="opacity:.25" cx="12" cy="12" r="10"
@@ -60,7 +55,6 @@ import { CommonModule } from '@angular/common';
           <p style="font-size:.875rem;color:#9ca3af;margin:.25rem 0 0">Please wait a moment...</p>
         </div>
 
-        <!-- Bouncing dots -->
         <div style="display:flex;gap:6px;margin-top:.25rem">
           <span style="width:8px;height:8px;background:#818cf8;border-radius:50%;
                        animation:bounce 0.8s infinite alternate;animation-delay:0ms"></span>
@@ -73,7 +67,6 @@ import { CommonModule } from '@angular/common';
 
       <p style="color:#9ca3af;font-size:.75rem;margin-top:1.5rem">Secured by Google OAuth 2.0</p>
     </div>
-
     <style>
       @keyframes spin   { to { transform: rotate(360deg); } }
       @keyframes bounce { to { transform: translateY(-6px); } }
@@ -87,32 +80,51 @@ export class CallbackComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const hash    = window.location.hash.substring(1);
-    const params  = new URLSearchParams(hash);
-    const idToken = params.get('id_token');
-    const state   = params.get('state');
+    // ✅ Check BOTH hash AND query string — Google can use either
+    const hashParams  = new URLSearchParams(window.location.hash.substring(1));
+    const queryParams = new URLSearchParams(window.location.search.substring(1));
+
+    const idToken = hashParams.get('id_token') ?? queryParams.get('id_token');
+    const state   = hashParams.get('state')    ?? queryParams.get('state');
     const saved   = localStorage.getItem('oauth_state');
 
-    // ── Validate state ─────────────────────────────────────
-    if (!idToken || !saved || state !== saved) {
-      console.error('OAuth state mismatch or missing id_token');
-      this.router.navigate(['/auth/login'], { queryParams: { error: 'oauth_invalid' } });
+    console.log('🔵 Callback hit');
+    console.log('🔵 id_token:', idToken ? 'EXISTS' : 'MISSING');
+    console.log('🔵 state from URL :', state);
+    console.log('🔵 state from storage:', saved);
+    console.log('🔵 full URL:', window.location.href);
+
+    // ── Missing token ──────────────────────────────────────
+    if (!idToken) {
+      console.error('❌ No id_token in callback URL');
+      this.router.navigate(['/auth/login'], { queryParams: { error: 'no_token' } });
+      return;
+    }
+
+    // ── State validation (CSRF protection) ────────────────
+    // ✅ Decode both sides before comparing — Google may URL-encode the state
+    const stateMatch = decodeURIComponent(state ?? '') === decodeURIComponent(saved ?? '');
+    if (!saved || !stateMatch) {
+      console.error('❌ State mismatch', { state, saved });
+      this.router.navigate(['/auth/login'], { queryParams: { error: 'state_mismatch' } });
       return;
     }
 
     localStorage.removeItem('oauth_state');
 
-    // ── Optional return URL (e.g. from forgot-password flow) ─
-    const returnUrl = localStorage.getItem('oauth_return_url') ?? null;
-    localStorage.removeItem('oauth_return_url');
-
-    // ── Read intended role set before OAuth redirect ────────
+    const returnUrl    = localStorage.getItem('oauth_return_url') ?? null;
     const intendedRole = localStorage.getItem('oauth_intended_role') ?? 'Patient';
+    localStorage.removeItem('oauth_return_url');
     localStorage.removeItem('oauth_intended_role');
+
+    console.log('🟢 Sending id_token to backend, role:', intendedRole);
 
     this.auth.googleLogin(idToken, intendedRole).subscribe({
       next: r => {
-        // googleLogin's tap() already called store() at this point
+        console.log('🟢 Backend response:', r);
+        console.log('🟢 currentUser:', this.auth.currentUser());
+        console.log('🟢 userRole:', this.auth.userRole());
+
         if (r.requiresTwoFactor) {
           this.router.navigate(['/auth/login'], {
             queryParams: { twoFa: true, userId: r.userId }
@@ -127,7 +139,7 @@ export class CallbackComponent implements OnInit {
         }
       },
       error: err => {
-        console.error('Google login failed', err);
+        console.error('❌ Backend Google login error:', err);
         this.router.navigate(['/auth/login'], { queryParams: { error: 'google_failed' } });
       }
     });
