@@ -24,9 +24,9 @@ public class AuthController : ControllerBase
     private readonly FirebaseAdminService _firebase;
     private readonly TwoFactorService _twoFactor;
     private readonly AppDbContext _ctx;
+    private readonly ILogger<AuthController> _logger; // ✅ added
 
     // In-memory OTP store (for password reset only)
-    // In production replace with IDistributedCache / Redis
     private static readonly Dictionary<string, (string Otp, DateTime Expiry, int Attempts)> _otpStore = new();
     private static readonly object _otpLock = new();
 
@@ -38,7 +38,8 @@ public class AuthController : ControllerBase
         GoogleAuthService googleAuth,
         FirebaseAdminService firebase,
         TwoFactorService twoFactor,
-        AppDbContext ctx)
+        AppDbContext ctx,
+        ILogger<AuthController> logger) // ✅ added
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -48,6 +49,7 @@ public class AuthController : ControllerBase
         _firebase = firebase;
         _twoFactor = twoFactor;
         _ctx = ctx;
+        _logger = logger; // ✅ added
     }
 
     // ══════════════════════════════════════════════════════════
@@ -77,9 +79,20 @@ public class AuthController : ControllerBase
         await _userManager.AddToRoleAsync(user, dto.Role);
         await CreateRoleProfileAsync(user, dto);
 
-        // Send welcome email
-        _ = Task.Run(() => _emailService.SendWelcomeEmailAsync(
-            user.Email!, user.FullName, user.Role));
+        // ✅ Fixed — properly async with error logging
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _emailService.SendWelcomeEmailAsync(
+                    user.Email!, user.FullName, user.Role);
+                _logger.LogInformation("✅ Welcome email sent to {Email}", user.Email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Welcome email failed for {Email}", user.Email);
+            }
+        });
 
         return Ok(BuildAuthResponse(user));
     }
@@ -145,8 +158,20 @@ public class AuthController : ControllerBase
             await _userManager.AddToRoleAsync(user, dto.Role);
             await CreateRoleProfileAsync(user, new RegisterDto { Role = dto.Role });
 
-            _ = Task.Run(() => _emailService.SendWelcomeEmailAsync(
-                user.Email!, user.FullName, user.Role));
+            // ✅ Fixed — properly async with error logging
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendWelcomeEmailAsync(
+                        user.Email!, user.FullName, user.Role);
+                    _logger.LogInformation("✅ Google welcome email sent to {Email}", user.Email);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ Google welcome email failed for {Email}", user.Email);
+                }
+            });
         }
         else
         {
@@ -167,8 +192,7 @@ public class AuthController : ControllerBase
     }
 
     // ══════════════════════════════════════════════════════════
-    // 4. Firebase Login (phone OTP + email OTP via Firebase)
-    //    Frontend verifies OTP with Firebase → gets ID token → sends here
+    // 4. Firebase Login
     // ══════════════════════════════════════════════════════════
     [HttpPost("firebase-login")]
     public async Task<ActionResult<AuthResponseDto>> FirebaseLogin([FromBody] FirebaseLoginDto dto)
@@ -181,17 +205,15 @@ public class AuthController : ControllerBase
         var email = decoded.Claims.GetValueOrDefault("email")?.ToString();
         var phone = decoded.Claims.GetValueOrDefault("phone_number")?.ToString();
         var name = decoded.Claims.GetValueOrDefault("name")?.ToString()
-                       ?? dto.DisplayName
-                       ?? "MediBook User";
+                          ?? dto.DisplayName
+                          ?? "MediBook User";
 
-        // Find existing user by Firebase UID, email, or phone
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.FirebaseUid == firebaseUid)
                 ?? (email != null ? await _userManager.FindByEmailAsync(email) : null)
                 ?? (phone != null ? await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phone) : null);
 
         if (user is null)
         {
-            // Auto-register on first Firebase login
             var nameParts = name.Split(' ', 2);
             user = new AppUser
             {
@@ -213,9 +235,21 @@ public class AuthController : ControllerBase
             await _userManager.AddToRoleAsync(user, dto.Role);
             await CreateRoleProfileAsync(user, new RegisterDto { Role = dto.Role });
 
+            // ✅ Fixed — properly async with error logging
             if (email != null)
-                _ = Task.Run(() => _emailService.SendWelcomeEmailAsync(
-                    email, user.FullName, user.Role));
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _emailService.SendWelcomeEmailAsync(
+                            email, user.FullName, user.Role);
+                        _logger.LogInformation("✅ Firebase welcome email sent to {Email}", email);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "❌ Firebase welcome email failed for {Email}", email);
+                    }
+                });
         }
         else
         {
@@ -244,24 +278,19 @@ public class AuthController : ControllerBase
         if (string.IsNullOrWhiteSpace(dto.Email))
             return BadRequest(new { message = "Email is required" });
 
-        // Normalize email (IMPORTANT FIX)
         var email = dto.Email.Trim().ToLower();
-
-        Console.WriteLine("🔍 Forgot password request for: " + email);
+        _logger.LogInformation("🔍 Forgot password request for: {Email}", email);
 
         var user = await _userManager.FindByEmailAsync(email);
-
         if (user is null)
         {
-            Console.WriteLine("❌ User NOT FOUND");
+            _logger.LogWarning("❌ User NOT FOUND: {Email}", email);
             return BadRequest(new { message = "User not found with this email" });
         }
 
-        Console.WriteLine("✅ User FOUND: " + user.Email);
+        _logger.LogInformation("✅ User FOUND: {Email}", user.Email);
 
-        // Generate OTP
         var otp = new Random().Next(100000, 999999).ToString();
-
         lock (_otpLock)
         {
             _otpStore[email] = (otp, DateTime.UtcNow.AddMinutes(10), 0);
@@ -269,12 +298,13 @@ public class AuthController : ControllerBase
 
         try
         {
-            await _emailService.SendPasswordResetOtpAsync(user.Email!, user.FullName ?? "User", otp);
-            Console.WriteLine("📧 OTP email SENT to: " + user.Email);
+            await _emailService.SendPasswordResetOtpAsync(
+                user.Email!, user.FullName ?? "User", otp);
+            _logger.LogInformation("📧 OTP email sent to: {Email}", user.Email);
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ EMAIL ERROR: " + ex.Message);
+            _logger.LogError(ex, "❌ OTP email failed for {Email}", user.Email);
             return StatusCode(500, new { message = "Failed to send OTP email" });
         }
 
@@ -288,11 +318,9 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> VerifyForgotPasswordOtp([FromBody] VerifyForgotPasswordOtpDto dto)
     {
         var email = dto.Email.Trim().ToLower();
-
-        Console.WriteLine("🔐 OTP VERIFY for: " + email);
+        _logger.LogInformation("🔐 OTP VERIFY for: {Email}", email);
 
         (string Otp, DateTime Expiry, int Attempts) stored;
-
         lock (_otpLock)
         {
             if (!_otpStore.TryGetValue(email, out stored))
@@ -321,8 +349,7 @@ public class AuthController : ControllerBase
         }
 
         var user = await _userManager.FindByEmailAsync(email);
-        if (user is null)
-            return BadRequest(new { detail = "User not found" });
+        if (user is null) return BadRequest(new { detail = "User not found" });
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
@@ -331,8 +358,7 @@ public class AuthController : ControllerBase
             return BadRequest(new { detail = string.Join("; ", result.Errors.Select(e => e.Description)) });
 
         lock (_otpLock) { _otpStore.Remove(email); }
-
-        Console.WriteLine("✅ Password reset SUCCESS for: " + email);
+        _logger.LogInformation("✅ Password reset SUCCESS for: {Email}", email);
 
         return Ok(new { message = "Password reset successfully. You can now log in." });
     }
@@ -418,7 +444,9 @@ public class AuthController : ControllerBase
         return Ok(BuildAuthResponse(user));
     }
 
-    // ── PHONE + PASSWORD LOGIN ─────────────────────────────────
+    // ══════════════════════════════════════════════════════════
+    // 11. Phone + Password Login
+    // ══════════════════════════════════════════════════════════
     [HttpPost("login-phone")]
     public async Task<IActionResult> LoginWithPhone([FromBody] PhoneLoginDto dto)
     {
@@ -442,6 +470,41 @@ public class AuthController : ControllerBase
             return Ok(new { requiresTwoFactor = true, userId = user.Id });
 
         return Ok(BuildAuthResponse(user));
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // 12. 2FA Status
+    // ══════════════════════════════════════════════════════════
+    [HttpGet("2fa/status")]
+    [Authorize]
+    public async Task<IActionResult> GetTwoFactorStatus()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null) return NotFound();
+        return Ok(new { enabled = user.TwoFactorEnabled });
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // 13. Test Email — remove after testing
+    // ══════════════════════════════════════════════════════════
+    [HttpPost("test-email")]
+    [AllowAnonymous]
+    public async Task<IActionResult> TestEmail([FromBody] string toEmail)
+    {
+        try
+        {
+            await _emailService.SendWelcomeEmailAsync(toEmail, "Test User", "Patient");
+            return Ok(new { message = $"✅ Email sent successfully to {toEmail}" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                error = ex.Message,
+                inner = ex.InnerException?.Message
+            });
+        }
     }
 
     // ══════════════════════════════════════════════════════════
@@ -470,17 +533,6 @@ public class AuthController : ControllerBase
             });
         }
         await _ctx.SaveChangesAsync();
-    }
-
-    // ── 2FA: Status ───────────────────────────────────────────
-    [HttpGet("2fa/status")]
-    [Authorize]
-    public async Task<IActionResult> GetTwoFactorStatus()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user is null) return NotFound();
-        return Ok(new { enabled = user.TwoFactorEnabled });
     }
 
     private AuthResponseDto BuildAuthResponse(AppUser user) => new()
