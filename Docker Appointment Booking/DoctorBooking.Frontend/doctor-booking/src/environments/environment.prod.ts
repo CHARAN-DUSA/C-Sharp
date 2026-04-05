@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-app.azurewebsites.net/api',
-  hubUrl: 'https://your-app.azurewebsites.net',
-  googleClientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+  apiUrl: 'https://c-sharp-dw7x.onrender.com/api',
+  hubUrl: 'https://c-sharp-dw7x.onrender.com',
+  googleClientId: '81556474199-g38vore53mkp9a4tdeng2v68n84sc5sd.apps.googleusercontent.com',
 };

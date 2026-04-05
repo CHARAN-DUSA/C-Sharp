@@ -2,23 +2,133 @@
 <div style="padding-top:var(--mb-navbar-height);display:flex">
   <app-sidebar></app-sidebar>
   <main class="main-content">
-    <div class="page-header"><h2><i class="bi bi-person-badge text-primary me-2"></i>Doctor Profile</h2><p>Update your professional information</p></div>
+    <div class="page-header">
+      <h2><i class="bi bi-person-badge text-primary me-2"></i>Doctor Profile</h2>
+      <p>Update your professional information</p>
+    </div>
     <div class="row g-4">
-      <div class="col-lg-4"><div class="card border-0 shadow-sm p-4 text-center" style="border-radius:16px"><div class="mx-auto mb-3" style="width:100px;height:100px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center"><i class="bi bi-person-badge text-success" style="font-size:3.5rem"></i></div><h5 class="fw-bold">Dr. {{ auth.currentUser()?.fullName }}</h5><span class="role-badge doctor">Doctor</span><div class="text-muted small mt-2">{{ auth.currentUser()?.email }}</div></div></div>
-      <div class="col-lg-8"><div class="card border-0 shadow-sm p-4" style="border-radius:16px">
-        <h6 class="fw-bold mb-4"><i class="bi bi-pencil me-2 text-primary"></i>Professional Information</h6>
-        <form [formGroup]="form" (ngSubmit)="save()">
-          <div class="row g-3">
-            <div class="col-12"><label class="form-label fw-semibold">Bio</label><textarea class="form-control" formControlName="bio" rows="3" placeholder="Tell patients about yourself..."></textarea></div>
-            <div class="col-md-6"><label class="form-label fw-semibold">Consultation Fee (₹)</label><input type="number" class="form-control" formControlName="consultationFee"></div>
-            <div class="col-md-6"><label class="form-label fw-semibold">Languages</label><input type="text" class="form-control" formControlName="languages" placeholder="English, Hindi..."></div>
-            <div class="col-md-6"><label class="form-label fw-semibold">Clinic Name</label><input type="text" class="form-control" formControlName="clinicName"></div>
-            <div class="col-md-6"><label class="form-label fw-semibold">Address</label><input type="text" class="form-control" formControlName="address"></div>
+
+      <!-- Avatar card -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 text-center" style="border-radius:16px">
+          <div class="mx-auto mb-3" style="width:100px;height:100px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center">
+            <i class="bi bi-person-badge text-success" style="font-size:3.5rem"></i>
           </div>
-          <div *ngIf="saved()" class="alert alert-success py-2 mt-3" style="border-radius:8px"><i class="bi bi-check-circle me-2"></i>Profile updated.</div>
-          <button type="submit" class="btn btn-primary mt-3 px-4 fw-semibold" [disabled]="saving()"><span *ngIf="saving()" class="spinner-border spinner-border-sm me-2"></span>{{ saving() ? 'Saving...' : 'Save Changes' }}</button>
-        </form>
-      </div></div>
+          <h5 class="fw-bold">Dr. {{ auth.currentUser()?.fullName }}</h5>
+          <span class="role-badge doctor">Doctor</span>
+          <div class="text-muted small mt-2">{{ auth.currentUser()?.email }}</div>
+        </div>
+      </div>
+
+      <!-- Form + 2FA cards -->
+      <div class="col-lg-8 d-flex flex-column gap-4">
+
+        <!-- Professional info card -->
+        <div class="card border-0 shadow-sm p-4" style="border-radius:16px">
+          <h6 class="fw-bold mb-4"><i class="bi bi-pencil me-2 text-primary"></i>Professional Information</h6>
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <div class="row g-3">
+              <div class="col-12"><label class="form-label fw-semibold">Bio</label><textarea class="form-control" formControlName="bio" rows="3" placeholder="Tell patients about yourself..."></textarea></div>
+              <div class="col-md-6"><label class="form-label fw-semibold">Consultation Fee (₹)</label><input type="number" class="form-control" formControlName="consultationFee"></div>
+              <div class="col-md-6"><label class="form-label fw-semibold">Languages</label><input type="text" class="form-control" formControlName="languages" placeholder="English, Hindi..."></div>
+              <div class="col-md-6"><label class="form-label fw-semibold">Clinic Name</label><input type="text" class="form-control" formControlName="clinicName"></div>
+              <div class="col-md-6"><label class="form-label fw-semibold">Address</label><input type="text" class="form-control" formControlName="address"></div>
+            </div>
+            <div *ngIf="saved()" class="alert alert-success py-2 mt-3" style="border-radius:8px"><i class="bi bi-check-circle me-2"></i>Profile updated.</div>
+            <button type="submit" class="btn btn-primary mt-3 px-4 fw-semibold" [disabled]="saving()">
+              <span *ngIf="saving()" class="spinner-border spinner-border-sm me-2"></span>
+              {{ saving() ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- ── 2FA card (identical to patient) ─────────────── -->
+        <div class="card border-0 shadow-sm p-4" style="border-radius:16px">
+          <h6 class="fw-bold mb-1"><i class="bi bi-shield-lock me-2 text-primary"></i>Two-Factor Authentication</h6>
+          <p class="text-muted small mb-3">Add an extra layer of security to your account using an authenticator app.</p>
+
+          <div class="mb-3">
+            <span class="badge" [ngClass]="twoFaEnabled() ? 'bg-success' : 'bg-secondary'">
+              <i class="bi" [ngClass]="twoFaEnabled() ? 'bi-shield-check' : 'bi-shield-x'"></i>
+              {{ twoFaEnabled() ? '2FA Enabled' : '2FA Disabled' }}
+            </span>
+          </div>
+
+          <div *ngIf="twoFaMessage()" class="alert alert-success py-2" style="border-radius:8px">
+            <i class="bi bi-check-circle me-2"></i>{{ twoFaMessage() }}
+          </div>
+          <div *ngIf="twoFaError()" class="alert alert-danger py-2" style="border-radius:8px">
+            <i class="bi bi-exclamation-circle me-2"></i>{{ twoFaError() }}
+          </div>
+
+          <ng-container *ngIf="!twoFaEnabled()">
+            <ng-container *ngIf="!twoFaSetupMode()">
+              <button class="btn btn-outline-primary fw-semibold" (click)="beginSetup2FA()" [disabled]="twoFaLoading()">
+                <span *ngIf="twoFaLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!twoFaLoading()" class="bi bi-qr-code me-2"></i>
+                Set Up Two-Factor Authentication
+              </button>
+            </ng-container>
+            <ng-container *ngIf="twoFaSetupMode()">
+              <ol class="small text-muted mb-3">
+                <li>Install <strong>Google Authenticator</strong> or <strong>Authy</strong> on your phone.</li>
+                <li>Scan the QR code below, or enter the key manually.</li>
+                <li>Enter the 6-digit code shown in the app to confirm.</li>
+              </ol>
+              <div class="text-center mb-3">
+                <img [src]="twoFaQrUrl()" alt="2FA QR Code" width="180" height="180" class="border rounded p-1">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Manual Entry Key</label>
+                <div class="input-group">
+                  <input type="text" class="form-control font-monospace" [value]="twoFaSecret()" readonly>
+                  <button class="btn btn-outline-secondary" type="button"
+                    (click)="$any($event.target).innerText='✓'; navigator.clipboard.writeText(twoFaSecret())">
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Verification Code</label>
+                <input type="text" class="form-control" maxlength="6" placeholder="6-digit code"
+                  [value]="twoFaCode()" (input)="twoFaCode.set($any($event.target).value)">
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary fw-semibold" (click)="enable2FA()" [disabled]="twoFaLoading()">
+                  <span *ngIf="twoFaLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                  Verify & Enable
+                </button>
+                <button class="btn btn-outline-secondary" (click)="cancelSetup()">Cancel</button>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="twoFaEnabled()">
+            <ng-container *ngIf="!showDisableInput()">
+              <button class="btn btn-outline-danger fw-semibold" (click)="showDisableInput.set(true)">
+                <i class="bi bi-shield-x me-2"></i>Disable Two-Factor Authentication
+              </button>
+            </ng-container>
+            <ng-container *ngIf="showDisableInput()">
+              <p class="small text-muted">Enter the current code from your authenticator app to disable 2FA.</p>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Authenticator Code</label>
+                <input type="text" class="form-control" maxlength="6" placeholder="6-digit code"
+                  [value]="disableCode()" (input)="disableCode.set($any($event.target).value)">
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-danger fw-semibold" (click)="disable2FA()" [disabled]="twoFaLoading()">
+                  <span *ngIf="twoFaLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                  Confirm Disable
+                </button>
+                <button class="btn btn-outline-secondary"
+                  (click)="showDisableInput.set(false); disableCode.set(''); twoFaError.set('')">Cancel</button>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+
+      </div>
     </div>
   </main>
 </div>

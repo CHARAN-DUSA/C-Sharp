@@ -472,6 +472,17 @@ public class AuthController : ControllerBase
         await _ctx.SaveChangesAsync();
     }
 
+    // ── 2FA: Status ───────────────────────────────────────────
+    [HttpGet("2fa/status")]
+    [Authorize]
+    public async Task<IActionResult> GetTwoFactorStatus()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null) return NotFound();
+        return Ok(new { enabled = user.TwoFactorEnabled });
+    }
+
     private AuthResponseDto BuildAuthResponse(AppUser user) => new()
     {
         Token = _tokenService.GenerateToken(user),
